@@ -41,24 +41,29 @@ const Index = () => {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
           <img src={heroImage} alt="Manipal coast at sunset" className="h-full w-full object-cover" width={1536} height={1024} />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/60 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-secondary/10" />
         </div>
+        {/* Floating accent blobs */}
+        <div className="pointer-events-none absolute -left-10 top-20 h-32 w-32 rounded-full bg-primary/20 blur-3xl animate-float" />
+        <div className="pointer-events-none absolute right-10 bottom-10 h-40 w-40 rounded-full bg-secondary/20 blur-3xl animate-float" style={{ animationDelay: "1.5s" }} />
+
         <div className="container relative z-10 px-4 py-20 md:py-32">
-          <div className="mx-auto max-w-3xl space-y-6 text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border/50 bg-background/80 px-4 py-1.5 text-sm backdrop-blur">
+          <div className="mx-auto max-w-3xl space-y-6 text-center animate-fade-in">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border/50 glass px-4 py-1.5 text-sm">
               <Sparkles className="h-4 w-4 text-primary" />
               <span>For students, by students</span>
             </div>
-            <h1 className="text-4xl font-extrabold leading-tight md:text-6xl lg:text-7xl">
+            <h1 className="text-4xl font-extrabold leading-[1.05] md:text-6xl lg:text-7xl">
               Find Manipal's <span className="bg-gradient-hero bg-clip-text text-transparent">hidden spots</span>
             </h1>
             <p className="mx-auto max-w-xl text-lg text-muted-foreground md:text-xl">
-              Beaches, waterfalls, treks and cafes — picked for your mood, budget and weekend plan.
+              Beaches, treks, cafes, bars and late-night clubs — picked for your mood, budget and weekend plan.
             </p>
             <div className="flex flex-wrap justify-center gap-3 pt-2">
               <Button
                 size="lg"
-                className="bg-gradient-hero shadow-glow"
+                className="bg-gradient-hero shadow-glow hover:scale-105 transition-transform"
                 onClick={() => formRef.current?.scrollIntoView({ behavior: "smooth" })}
               >
                 Plan my trip <ArrowDown className="ml-2 h-4 w-4" />
@@ -69,9 +74,10 @@ const Index = () => {
                 </Button>
               )}
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-6 pt-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> 16+ curated spots</div>
-              <div className="flex items-center gap-2"><TrendingUp className="h-4 w-4 text-primary" /> Personalized for you</div>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-6 text-sm">
+              <div className="flex items-center gap-2 rounded-full glass px-4 py-2"><MapPin className="h-4 w-4 text-primary" /> 28+ curated spots</div>
+              <div className="flex items-center gap-2 rounded-full glass px-4 py-2"><TrendingUp className="h-4 w-4 text-secondary" /> Personalized picks</div>
+              <div className="flex items-center gap-2 rounded-full glass px-4 py-2">☕ Cafes · 🏖 Beaches · 🍻 Bars</div>
             </div>
           </div>
         </div>

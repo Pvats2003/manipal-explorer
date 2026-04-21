@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import DestinationCard from "@/components/DestinationCard";
@@ -10,7 +10,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { scoreDestinations } from "@/lib/recommendation";
 import type { Destination, ScoredDestination, UserPreferences } from "@/lib/types";
-import { ArrowLeft, Check, Sparkles, Star } from "lucide-react";
+import { ArrowLeft, Check, Sparkles, Star, Filter, Waves, Mountain, Coffee, UtensilsCrossed, Wine, PartyPopper, Trees, Camera } from "lucide-react";
+
+const CATEGORY_META: Record<string, { label: string; icon: any }> = {
+  all: { label: "All", icon: Sparkles },
+  beach: { label: "Beach", icon: Waves },
+  trek: { label: "Trek", icon: Mountain },
+  waterfall: { label: "Waterfall", icon: Trees },
+  cafe: { label: "Cafes", icon: Coffee },
+  restaurant: { label: "Restaurants", icon: UtensilsCrossed },
+  bar: { label: "Bars", icon: Wine },
+  lounge: { label: "Lounges", icon: Wine },
+  nightlife: { label: "Nightlife", icon: PartyPopper },
+  hangout: { label: "Hangouts", icon: Camera },
+  nature: { label: "Nature", icon: Trees },
+};
 
 export default function Recommendations() {
   const navigate = useNavigate();
@@ -18,6 +32,7 @@ export default function Recommendations() {
   const [results, setResults] = useState<ScoredDestination[]>([]);
   const [prefs, setPrefs] = useState<UserPreferences | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeCat, setActiveCat] = useState<string>("all");
 
   useEffect(() => {
     const stored = sessionStorage.getItem("mhs_prefs");
@@ -50,23 +65,28 @@ export default function Recommendations() {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="container px-4 py-20 text-center text-muted-foreground">Finding your perfect spots...</div>
+        <div className="container px-4 py-20 text-center">
+          <div className="mx-auto h-12 w-12 animate-float rounded-full bg-gradient-hero shadow-glow" />
+          <p className="mt-4 text-muted-foreground">Finding your perfect spots...</p>
+        </div>
       </div>
     );
   }
 
-  const top = results.slice(0, 2);
-  const others = results.slice(2, 5);
+  const categoriesPresent = Array.from(new Set(results.map((r) => r.category)));
+  const filtered = activeCat === "all" ? results : results.filter((r) => r.category === activeCat);
+  const top = filtered.slice(0, 2);
+  const others = filtered.slice(2, 8);
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container max-w-6xl space-y-8 px-4 py-8">
+      <div className="container max-w-6xl space-y-6 px-4 py-6 md:py-8">
         <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Edit preferences
         </Button>
 
-        <div className="space-y-2">
+        <div className="space-y-2 animate-fade-in">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">
             <Sparkles className="h-4 w-4" /> Top picks for you
           </div>
@@ -79,12 +99,44 @@ export default function Recommendations() {
           </div>
         </div>
 
+        {/* Sticky category filter bar */}
+        <div className="sticky top-14 z-30 -mx-4 border-y border-border/50 glass px-4 py-2 md:rounded-2xl md:border md:mx-0">
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+              {(["all", ...categoriesPresent]).map((cat) => {
+                const meta = CATEGORY_META[cat] || { label: cat, icon: Sparkles };
+                const Icon = meta.icon;
+                const active = activeCat === cat;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCat(cat)}
+                    className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium capitalize transition-smooth ${
+                      active
+                        ? "bg-gradient-hero text-primary-foreground shadow-glow"
+                        : "bg-muted text-muted-foreground hover:bg-muted/70"
+                    }`}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    {meta.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
         {top.length === 0 ? (
           <Card className="p-8 text-center">No matches found. Try broadening your preferences.</Card>
         ) : (
           <div className="grid gap-6 lg:grid-cols-2">
             {top.map((dest, i) => (
-              <Card key={dest.id} className="overflow-hidden border-border/50 bg-gradient-card shadow-card">
+              <Card
+                key={dest.id}
+                style={{ animationDelay: `${i * 80}ms` }}
+                className="overflow-hidden border-border/50 bg-gradient-card shadow-card animate-scale-in hover-lift"
+              >
                 <div className="relative h-56 bg-gradient-hero">
                   {dest.image_url && <img src={dest.image_url} alt={dest.name} loading="lazy" className="h-full w-full object-cover" />}
                   <div className="absolute inset-0 bg-gradient-sunset" />
@@ -152,10 +204,14 @@ export default function Recommendations() {
         )}
 
         {others.length > 0 && (
-          <div className="space-y-4">
+          <div className="space-y-4 animate-fade-in">
             <h2 className="text-2xl font-bold">Also worth checking out</h2>
-            <div className="grid gap-4 md:grid-cols-3">
-              {others.map((d) => <DestinationCard key={d.id} destination={d} />)}
+            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+              {others.map((d, idx) => (
+                <div key={d.id} style={{ animationDelay: `${idx * 60}ms` }} className="animate-fade-in">
+                  <DestinationCard destination={d} />
+                </div>
+              ))}
             </div>
           </div>
         )}

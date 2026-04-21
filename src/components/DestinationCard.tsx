@@ -15,14 +15,14 @@ const FALLBACK_GRADIENT = "bg-gradient-hero";
 export default function DestinationCard({ destination, rank, className }: Props) {
   return (
     <Link to={`/destination/${destination.id}`} className={className}>
-      <Card className="group overflow-hidden border-border/50 bg-gradient-card shadow-card transition-smooth hover:shadow-glow hover:-translate-y-1">
+      <Card className="group h-full overflow-hidden border-border/50 bg-gradient-card shadow-card transition-smooth hover:shadow-glow hover:-translate-y-1">
         <div className={`relative h-48 ${FALLBACK_GRADIENT} overflow-hidden`}>
           {destination.image_url && (
             <img
               src={destination.image_url}
               alt={destination.name}
               loading="lazy"
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
           )}
           <div className="absolute inset-0 bg-gradient-sunset" />

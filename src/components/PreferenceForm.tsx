@@ -31,7 +31,7 @@ interface Props {
 
 export default function PreferenceForm({ onSubmit }: Props) {
   const [location, setLocation] = useState("Manipal, Karnataka");
-  const [moods, setMoods] = useState<Mood[]>(["chill"]);
+  const [moods, setMoods] = useState<Mood[]>([]);
   const [budget, setBudget] = useState<Budget>("medium");
   const [budgetAmount, setBudgetAmount] = useState(2500);
   const [duration, setDuration] = useState<Duration>("day");

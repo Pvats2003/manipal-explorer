@@ -28,7 +28,7 @@ const Index = () => {
   const handleSubmit = async (prefs: UserPreferences) => {
     sessionStorage.setItem("mhs_prefs", JSON.stringify(prefs));
     if (user) {
-      await supabase.from("trip_history").insert({ user_id: user.id, preferences: prefs as unknown as never });
+      await supabase.from("trip_history").insert([{ user_id: user.id, preferences: prefs as any }]);
     }
     navigate("/recommendations");
   };

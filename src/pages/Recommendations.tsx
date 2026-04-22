@@ -146,9 +146,9 @@ export default function Recommendations() {
                   <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-background/90 px-3 py-1 text-sm font-bold backdrop-blur">
                     <Star className="h-3.5 w-3.5 fill-primary text-primary" /> {dest.rating}/10
                   </div>
-                  <div className="absolute bottom-4 left-4 right-4 text-primary-foreground">
-                    <h2 className="text-3xl font-bold drop-shadow-lg">{dest.name}</h2>
-                    <p className="text-sm opacity-95">{dest.distance_km}km · {dest.category}</p>
+                  <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <h2 className="text-3xl font-bold drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">{dest.name}</h2>
+                    <p className="text-sm text-white/95 drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">{dest.distance_km}km · {dest.category}</p>
                   </div>
                 </div>
                 <div className="space-y-4 p-5">

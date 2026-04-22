@@ -226,8 +226,8 @@ export default function AISpots({ prefs, chatHistory }: Props) {
 
                 {/* Insider tip */}
                 {s.insider_tip && (
-                  <div className="flex items-start gap-2 rounded-lg border border-yellow-500/20 bg-yellow-500/5 px-3 py-2 text-sm">
-                    <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-yellow-500" />
+                  <div className="flex items-start gap-2 rounded-lg border border-accent/30 bg-accent/10 px-3 py-2 text-sm">
+                    <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-accent-foreground" />
                     <div><span className="font-semibold">Insider tip: </span>{s.insider_tip}</div>
                   </div>
                 )}

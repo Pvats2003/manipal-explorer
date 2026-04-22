@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.ai-spots]
 verify_jwt = false
+
+[functions.spots-chat]
+verify_jwt = false

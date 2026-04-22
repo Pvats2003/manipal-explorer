@@ -10,6 +10,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { UserPreferences } from "@/lib/types";
+import SpotsFollowupChat from "./SpotsFollowupChat";
 
 export interface AISpot {
   name: string;
@@ -266,6 +267,8 @@ export default function AISpots({ prefs, chatHistory }: Props) {
           );
         })}
       </div>
+
+      <SpotsFollowupChat spots={data.spots} moodReading={data.mood_reading} />
     </div>
   );
 }

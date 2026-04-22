@@ -24,10 +24,10 @@ Call the tool "recommend_spots" exactly once with the result. Do not write any p
 FIELD GUIDE (fill every required field; use empty string only if truly unknown):
 - mood_reading: 2-3 empathetic sentences addressed as "you".
 - vibe_tags: 3-6 short emotional tags.
-- spots: 8-14 items.
+- spots: EXACTLY 3-4 items, ranked best-fit first. Quality over quantity.
   - category: one of beach, trek, waterfall, viewpoint, cafe, restaurant, bar, lounge, nightlife, temple, hangout, nature, shopping.
   - area: locality, e.g. "Malpe, Udupi".
-  - description: 8-12 sentences with history, vibe, an interesting fact, who it suits.
+  - description: 5-7 sentences with vibe, an interesting fact, who it suits.
   - why_for_you: 2-3 sentences tying spot to user's mood.
   - best_time_to_visit / opening_hours / contact_phone / website: real values or omit.
   - google_maps_query: searchable string, e.g. "Kapu Lighthouse Beach Udupi Karnataka".
@@ -108,7 +108,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: userContext },

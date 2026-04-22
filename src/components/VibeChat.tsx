@@ -96,6 +96,13 @@ export default function VibeChat({ onComplete }: Props) {
         if (!data.reply) {
           setMessages((p) => [...p, { role: "assistant", content: "On it! Finding your spots... ✨" }]);
         }
+        // Persist full chat history so the recommender can read the user's mood
+        try {
+          sessionStorage.setItem(
+            "mhs_chat",
+            JSON.stringify([...next, ...(data.reply ? [{ role: "assistant", content: data.reply }] : [])]),
+          );
+        } catch { /* ignore */ }
         setTimeout(() => onComplete(prefs), 800);
       }
     } catch (e: any) {

@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Destination, UserPreferences } from "@/lib/types";
-import { ArrowDown, Sparkles, MapPin, TrendingUp } from "lucide-react";
+import { ArrowDown, Sparkles, MapPin, TrendingUp, Heart } from "lucide-react";
 import heroImage from "@/assets/hero-coast.jpg";
 
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [popular, setPopular] = useState<Destination[]>([]);
+  const [taste, setTaste] = useState<any>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -24,6 +25,25 @@ const Index = () => {
       .limit(3)
       .then(({ data }) => setPopular((data as Destination[]) || []));
   }, []);
+
+  useEffect(() => {
+    if (!user) { setTaste(null); return; }
+    supabase.from("profiles").select("taste_profile").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => setTaste(data?.taste_profile || null));
+  }, [user]);
+
+  const tastePersona = (() => {
+    if (!taste) return null;
+    const m: string[] = taste.moods || [];
+    const labels: string[] = [];
+    if (m.includes("adventure")) labels.push("Adventurous");
+    if (m.includes("party") || taste.crowd === "packed") labels.push("Party-loving");
+    if (m.includes("food")) labels.push("Foodie");
+    if (m.includes("nature") || m.includes("beach")) labels.push("Nature-seeker");
+    if (taste.crowd === "quiet") labels.push("Calm explorer");
+    if (taste.duration === "multi") labels.push("Weekend wanderer");
+    return labels.slice(0, 3).join(" · ") || "Explorer";
+  })();
 
   const handleSubmit = async (prefs: UserPreferences) => {
     sessionStorage.setItem("mhs_prefs", JSON.stringify(prefs));
@@ -86,6 +106,15 @@ const Index = () => {
       {/* Form */}
       <section ref={formRef} className="container px-4 py-16">
         <div className="mx-auto max-w-2xl space-y-8">
+          {user && taste && tastePersona && (
+            <div className="rounded-2xl border border-primary/20 bg-gradient-card p-4 shadow-card animate-fade-in">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Heart className="h-3.5 w-3.5 text-primary" /> Your taste profile
+              </div>
+              <div className="mt-1 text-lg font-bold">{tastePersona}</div>
+              <p className="text-xs text-muted-foreground">We'll use these to personalize your picks. Tweak below anytime.</p>
+            </div>
+          )}
           <div className="text-center">
             <h2 className="text-3xl font-bold md:text-4xl">Tell us your vibe</h2>
             <p className="mt-2 text-muted-foreground">We'll surface the perfect spot in seconds.</p>

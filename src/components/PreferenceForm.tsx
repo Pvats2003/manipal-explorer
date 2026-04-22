@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,9 +12,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Loader2, Sparkles } from "lucide-react";
-import type { Budget, Duration, Mood, TravelType, UserPreferences } from "@/lib/types";
+import { MapPin, Loader2, Sparkles, Users, Sun, Sunset, Moon, Bus, Bike, Car, Footprints, Volume2, Volume1, VolumeX } from "lucide-react";
+import type { Budget, Crowd, Duration, Mood, TimeOfDay, Transport, TravelType, UserPreferences } from "@/lib/types";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const MOODS: { value: Mood; label: string; emoji: string }[] = [
   { value: "chill", label: "Chill", emoji: "🌅" },
@@ -25,18 +27,65 @@ const MOODS: { value: Mood; label: string; emoji: string }[] = [
   { value: "food", label: "Food", emoji: "🍜" },
 ];
 
+const TIMES: { value: TimeOfDay; label: string; Icon: any }[] = [
+  { value: "morning", label: "Morning", Icon: Sun },
+  { value: "afternoon", label: "Afternoon", Icon: Sun },
+  { value: "evening", label: "Evening", Icon: Sunset },
+  { value: "night", label: "Night", Icon: Moon },
+];
+
+const TRANSPORTS: { value: Transport; label: string; Icon: any }[] = [
+  { value: "walk", label: "Walk", Icon: Footprints },
+  { value: "bike", label: "Bike", Icon: Bike },
+  { value: "bus", label: "Bus", Icon: Bus },
+  { value: "cab", label: "Cab", Icon: Car },
+  { value: "car", label: "Own car", Icon: Car },
+];
+
+const CROWDS: { value: Crowd; label: string; Icon: any }[] = [
+  { value: "quiet", label: "Quiet", Icon: VolumeX },
+  { value: "lively", label: "Lively", Icon: Volume1 },
+  { value: "packed", label: "Packed", Icon: Volume2 },
+];
+
 interface Props {
   onSubmit: (prefs: UserPreferences) => void;
 }
 
 export default function PreferenceForm({ onSubmit }: Props) {
+  const { user } = useAuth();
   const [location, setLocation] = useState("Manipal, Karnataka");
   const [moods, setMoods] = useState<Mood[]>([]);
+  const [avoidMoods, setAvoidMoods] = useState<Mood[]>([]);
   const [budget, setBudget] = useState<Budget>("medium");
   const [budgetAmount, setBudgetAmount] = useState(2500);
   const [duration, setDuration] = useState<Duration>("day");
   const [travelType, setTravelType] = useState<TravelType>("friends");
+  const [groupSize, setGroupSize] = useState<number>(3);
+  const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>("evening");
+  const [transport, setTransport] = useState<Transport>("bike");
+  const [crowd, setCrowd] = useState<Crowd>("lively");
   const [locating, setLocating] = useState(false);
+
+  // Load saved taste profile for logged-in users
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("taste_profile").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => {
+        const tp: any = data?.taste_profile;
+        if (!tp) return;
+        if (Array.isArray(tp.moods)) setMoods(tp.moods);
+        if (Array.isArray(tp.avoidMoods)) setAvoidMoods(tp.avoidMoods);
+        if (tp.budget) setBudget(tp.budget);
+        if (typeof tp.budgetAmount === "number") setBudgetAmount(tp.budgetAmount);
+        if (tp.duration) setDuration(tp.duration);
+        if (tp.travelType) setTravelType(tp.travelType);
+        if (typeof tp.groupSize === "number") setGroupSize(tp.groupSize);
+        if (tp.timeOfDay) setTimeOfDay(tp.timeOfDay);
+        if (tp.transport) setTransport(tp.transport);
+        if (tp.crowd) setCrowd(tp.crowd);
+      });
+  }, [user]);
 
   const detectLocation = () => {
     if (!navigator.geolocation) {
@@ -59,14 +108,29 @@ export default function PreferenceForm({ onSubmit }: Props) {
 
   const toggleMood = (m: Mood) => {
     setMoods((prev) => (prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]));
+    // If you mark a vibe as wanted, remove it from "avoid"
+    setAvoidMoods((prev) => prev.filter((x) => x !== m));
   };
 
-  const handleSubmit = () => {
+  const toggleAvoid = (m: Mood) => {
+    setAvoidMoods((prev) => (prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]));
+    setMoods((prev) => prev.filter((x) => x !== m));
+  };
+
+  const handleSubmit = async () => {
     if (moods.length === 0) {
       toast.error("Pick at least one mood");
       return;
     }
-    onSubmit({ location, moods, budget, budgetAmount, duration, travelType });
+    const prefs: UserPreferences = {
+      location, moods, budget, budgetAmount, duration, travelType,
+      groupSize, timeOfDay, transport, crowd, avoidMoods,
+    };
+    if (user) {
+      // Save taste profile
+      await supabase.from("profiles").update({ taste_profile: prefs as any }).eq("user_id", user.id);
+    }
+    onSubmit(prefs);
   };
 
   return (
@@ -82,7 +146,9 @@ export default function PreferenceForm({ onSubmit }: Props) {
       </div>
 
       <div className="space-y-3">
-        <Label>What's the vibe?</Label>
+        <div className="flex items-center justify-between">
+          <Label>What's the vibe? <span className="text-xs text-muted-foreground">(pick any)</span></Label>
+        </div>
         <div className="grid grid-cols-3 gap-2">
           {MOODS.map((m) => (
             <button
@@ -99,6 +165,111 @@ export default function PreferenceForm({ onSubmit }: Props) {
               <span className="text-xs font-medium">{m.label}</span>
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* Vibes to avoid */}
+      <div className="space-y-2">
+        <Label className="text-sm text-muted-foreground">Anything you want to avoid?</Label>
+        <div className="flex flex-wrap gap-1.5">
+          {MOODS.map((m) => {
+            const active = avoidMoods.includes(m.value);
+            return (
+              <button
+                key={m.value}
+                type="button"
+                onClick={() => toggleAvoid(m.value)}
+                className={`flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-smooth ${
+                  active
+                    ? "border-destructive bg-destructive/10 text-destructive line-through"
+                    : "border-border bg-background text-muted-foreground hover:border-destructive/50"
+                }`}
+              >
+                <span>{m.emoji}</span> {m.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Group size + time of day */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> Group size</Label>
+            <Badge variant="secondary">{groupSize === 1 ? "Just me" : `${groupSize} people`}</Badge>
+          </div>
+          <Slider value={[groupSize]} onValueChange={([v]) => setGroupSize(v)} min={1} max={15} step={1} />
+        </div>
+        <div className="space-y-2">
+          <Label>Time of day</Label>
+          <div className="grid grid-cols-4 gap-1">
+            {TIMES.map((t) => {
+              const active = timeOfDay === t.value;
+              const Icon = t.Icon;
+              return (
+                <button
+                  key={t.value}
+                  type="button"
+                  onClick={() => setTimeOfDay(t.value)}
+                  title={t.label}
+                  className={`flex flex-col items-center gap-0.5 rounded-lg border-2 px-1 py-1.5 transition-smooth ${
+                    active ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span className="text-[10px] font-medium leading-none">{t.label.slice(0,3)}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Transport */}
+      <div className="space-y-2">
+        <Label>How are you getting there?</Label>
+        <div className="grid grid-cols-5 gap-1.5">
+          {TRANSPORTS.map((t) => {
+            const active = transport === t.value;
+            const Icon = t.Icon;
+            return (
+              <button
+                key={t.value}
+                type="button"
+                onClick={() => setTransport(t.value)}
+                className={`flex flex-col items-center gap-1 rounded-lg border-2 p-2 transition-smooth ${
+                  active ? "border-secondary bg-secondary/10" : "border-border hover:border-secondary/50"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span className="text-[10px] font-medium">{t.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Crowd preference */}
+      <div className="space-y-2">
+        <Label>Crowd preference</Label>
+        <div className="grid grid-cols-3 gap-2">
+          {CROWDS.map((c) => {
+            const active = crowd === c.value;
+            const Icon = c.Icon;
+            return (
+              <button
+                key={c.value}
+                type="button"
+                onClick={() => setCrowd(c.value)}
+                className={`flex items-center justify-center gap-1.5 rounded-xl border-2 p-2.5 text-sm transition-smooth ${
+                  active ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
+                }`}
+              >
+                <Icon className="h-4 w-4" /> {c.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -155,6 +326,11 @@ export default function PreferenceForm({ onSubmit }: Props) {
       <Button size="lg" className="w-full bg-gradient-hero shadow-glow text-base font-semibold" onClick={handleSubmit}>
         <Sparkles className="mr-2 h-5 w-5" /> Find My Spot
       </Button>
+      {user && (
+        <p className="text-center text-xs text-muted-foreground">
+          ✨ We'll remember these for next time and personalize your picks.
+        </p>
+      )}
     </Card>
   );
 }

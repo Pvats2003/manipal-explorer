@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import DestinationCard from "@/components/DestinationCard";
+import AISpots from "@/components/AISpots";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,7 @@ export default function Recommendations() {
   const [prefs, setPrefs] = useState<UserPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeCat, setActiveCat] = useState<string>("all");
+  const [chatHistory, setChatHistory] = useState<{ role: string; content: string }[]>([]);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("mhs_prefs");
@@ -42,6 +44,10 @@ export default function Recommendations() {
     }
     const p: UserPreferences = JSON.parse(stored);
     setPrefs(p);
+    try {
+      const ch = sessionStorage.getItem("mhs_chat");
+      if (ch) setChatHistory(JSON.parse(ch));
+    } catch { /* ignore */ }
 
     (async () => {
       const { data } = await supabase.from("destinations").select("*");

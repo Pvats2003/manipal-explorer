@@ -2,6 +2,9 @@ export type Mood = "party" | "chill" | "adventure" | "nature" | "beach" | "food"
 export type Budget = "low" | "medium" | "high";
 export type Duration = "day" | "multi";
 export type TravelType = "solo" | "friends" | "partner";
+export type TimeOfDay = "morning" | "afternoon" | "evening" | "night";
+export type Transport = "walk" | "bike" | "bus" | "cab" | "car";
+export type Crowd = "quiet" | "lively" | "packed";
 
 export interface UserPreferences {
   location: string;
@@ -10,6 +13,11 @@ export interface UserPreferences {
   budgetAmount: number;
   duration: Duration;
   travelType: TravelType;
+  groupSize?: number;
+  timeOfDay?: TimeOfDay;
+  transport?: Transport;
+  crowd?: Crowd;
+  avoidMoods?: Mood[];
 }
 
 export interface Destination {

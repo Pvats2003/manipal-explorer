@@ -105,6 +105,14 @@ export default function Recommendations() {
           </div>
         </div>
 
+        {/* AI-powered, real-world spots with timings, contact, maps */}
+        <AISpots prefs={prefs} chatHistory={chatHistory} />
+
+        <div className="pt-4">
+          <h2 className="text-2xl font-bold">From our curated collection</h2>
+          <p className="text-sm text-muted-foreground">Spots from our local database, ranked for your vibe.</p>
+        </div>
+
         {/* Sticky category filter bar */}
         <div className="sticky top-14 z-30 -mx-4 border-y border-border/50 glass px-4 py-2 md:rounded-2xl md:border md:mx-0">
           <div className="flex items-center gap-2">

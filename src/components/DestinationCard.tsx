@@ -35,8 +35,8 @@ export default function DestinationCard({ destination, rank, className }: Props)
             <Star className="h-3.5 w-3.5 fill-primary text-primary" />
             {destination.rating}/10
           </div>
-          <div className="absolute bottom-3 left-4 right-4 text-primary-foreground">
-            <h3 className="text-2xl font-bold drop-shadow-lg">{destination.name}</h3>
+          <div className="absolute bottom-3 left-4 right-4 text-white">
+            <h3 className="text-2xl font-bold drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">{destination.name}</h3>
           </div>
         </div>
         <div className="space-y-3 p-4">

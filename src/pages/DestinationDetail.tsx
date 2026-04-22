@@ -93,9 +93,9 @@ export default function DestinationDetail() {
         <div className="relative h-64 overflow-hidden rounded-2xl bg-gradient-hero md:h-80">
           {dest.image_url && <img src={dest.image_url} alt={dest.name} className="h-full w-full object-cover" />}
           <div className="absolute inset-0 bg-gradient-sunset" />
-          <div className="absolute bottom-6 left-6 right-6 text-primary-foreground">
+          <div className="absolute bottom-6 left-6 right-6 text-white">
             <Badge className="mb-2 bg-background/90 capitalize text-foreground">{dest.category}</Badge>
-            <h1 className="text-4xl font-extrabold drop-shadow-lg md:text-5xl">{dest.name}</h1>
+            <h1 className="text-4xl font-extrabold drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] md:text-5xl">{dest.name}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-4 text-sm">
               <span className="flex items-center gap-1"><Star className="h-4 w-4 fill-primary-glow text-primary-glow" /> {dest.rating}/10</span>
               <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {dest.distance_km}km from Manipal</span>

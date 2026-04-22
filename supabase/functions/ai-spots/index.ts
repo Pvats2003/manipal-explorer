@@ -19,7 +19,22 @@ For EACH spot, fill EVERY field truthfully. If you genuinely don't know a field,
 
 Tone for "why_for_you" and "insider_tip": warm, in-the-know, like a senior at MIT Manipal telling a junior.
 
-Call the tool "recommend_spots" exactly once with the result. Do not write any prose outside the tool call.`;
+Call the tool "recommend_spots" exactly once with the result. Do not write any prose outside the tool call.
+
+FIELD GUIDE (fill every required field; use empty string only if truly unknown):
+- mood_reading: 2-3 empathetic sentences addressed as "you".
+- vibe_tags: 3-6 short emotional tags.
+- spots: 8-14 items.
+  - category: one of beach, trek, waterfall, viewpoint, cafe, restaurant, bar, lounge, nightlife, temple, hangout, nature, shopping.
+  - area: locality, e.g. "Malpe, Udupi".
+  - description: 8-12 sentences with history, vibe, an interesting fact, who it suits.
+  - why_for_you: 2-3 sentences tying spot to user's mood.
+  - best_time_to_visit / opening_hours / contact_phone / website: real values or omit.
+  - google_maps_query: searchable string, e.g. "Kapu Lighthouse Beach Udupi Karnataka".
+  - budget_tier: low | medium | high.
+  - transport_tip: concrete route from Manipal (bus no, Rapido cost, scooter).
+  - what_to_order_or_do: 3-6 specific items.
+  - vibe_match_score: 0-100.`;
 
 const TOOL = {
   type: "function",

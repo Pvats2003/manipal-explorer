@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
-import PreferenceForm from "@/components/PreferenceForm";
+import VibeChat from "@/components/VibeChat";
 import DestinationCard from "@/components/DestinationCard";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -116,10 +116,10 @@ const Index = () => {
             </div>
           )}
           <div className="text-center">
-            <h2 className="text-3xl font-bold md:text-4xl">Tell us your vibe</h2>
-            <p className="mt-2 text-muted-foreground">We'll surface the perfect spot in seconds.</p>
+            <h2 className="text-3xl font-bold md:text-4xl">Chat with Vibe</h2>
+            <p className="mt-2 text-muted-foreground">Just tell our AI what you're in the mood for.</p>
           </div>
-          <PreferenceForm onSubmit={handleSubmit} />
+          <VibeChat onComplete={handleSubmit} />
         </div>
       </section>
 

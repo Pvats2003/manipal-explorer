@@ -84,7 +84,7 @@ const Index = () => {
               Coastal Karnataka,
               <span className="block italic font-bold text-secondary">student-discovered.</span>
             </h1>
-            <p className="mx-auto max-w-xl font-sans text-base text-primary-foreground/85 md:text-lg">
+            <p className="mx-auto max-w-xl font-sans text-base text-secondary/95 md:text-lg">
               60+ places. Real student tips. AI-powered itineraries.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3 pt-4">

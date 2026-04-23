@@ -194,7 +194,7 @@ export function RisingNewThisMonth() {
           <h2 className="flex items-center gap-2 text-2xl font-bold md:text-3xl">
             <Sparkles className="h-6 w-6 text-secondary" /> Rising — new this month
           </h2>
-          <p className="text-sm text-muted-foreground">Just added to Manipal Hidden Spots.</p>
+          <p className="text-sm text-muted-foreground">Just added to Karavali.</p>
         </div>
         <ScrollRow>
           {items.map(({ dest, count }) => (

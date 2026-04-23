@@ -41,7 +41,7 @@ export default function LoginModal({ open, onOpenChange }: { open: boolean; onOp
       });
       setLoading(false);
       if (error) return toast.error(error.message);
-      toast.success("Welcome to Manipal Hidden Spots!");
+      toast.success("Welcome to Karavali!");
       onOpenChange(false);
     }
   };

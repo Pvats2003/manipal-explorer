@@ -5,17 +5,26 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BUCKET_ITEMS, getCompleted, milestone, toggleCompleted, type BucketCategory } from "@/lib/bucketList";
-import { Check, Share2 } from "lucide-react";
+import { Check, CloudOff, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { fetchCloudBucket, toggleCloudBucket } from "@/lib/cloudSync";
 
 const CATEGORIES: BucketCategory[] = ["Food & Chai", "Nature & Outdoors", "Campus Life", "Day Trips", "Hidden Gems"];
 
 export default function BucketList() {
+  const { user } = useAuth();
   const [done, setDone] = useState<Record<string, number>>({});
   const [activeCat, setActiveCat] = useState<BucketCategory | "All">("All");
   const [recentlyClicked, setRecentlyClicked] = useState<string | null>(null);
 
-  useEffect(() => { setDone(getCompleted()); }, []);
+  useEffect(() => {
+    if (user) {
+      fetchCloudBucket(user.id).then(setDone);
+    } else {
+      setDone(getCompleted());
+    }
+  }, [user]);
 
   const total = BUCKET_ITEMS.length;
   const completedCount = Object.keys(done).length;
@@ -27,10 +36,19 @@ export default function BucketList() {
     [activeCat]
   );
 
-  const onToggle = (id: string) => {
+  const onToggle = async (id: string) => {
     const wasDone = !!done[id];
-    const next = toggleCompleted(id);
-    setDone(next);
+    if (user) {
+      // optimistic update
+      const next = { ...done };
+      if (wasDone) delete next[id]; else next[id] = Date.now();
+      setDone(next);
+      try { await toggleCloudBucket(user.id, id, wasDone); }
+      catch { toast.error("Couldn't sync — try again"); setDone(done); }
+    } else {
+      const next = toggleCompleted(id);
+      setDone(next);
+    }
     if (!wasDone) {
       setRecentlyClicked(id);
       setTimeout(() => setRecentlyClicked(null), 800);
@@ -53,6 +71,12 @@ export default function BucketList() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container max-w-5xl space-y-6 px-4 py-6">
+        {!user && (
+          <div className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-3 text-sm">
+            <CloudOff className="h-4 w-4 shrink-0 text-primary" />
+            <span className="flex-1 text-muted-foreground">Login to save your progress across devices.</span>
+          </div>
+        )}
         <div className="flex flex-col items-center gap-4 rounded-3xl bg-gradient-card p-6 text-center shadow-card md:flex-row md:text-left">
           <div className="relative h-36 w-36 shrink-0">
             <svg viewBox="0 0 140 140" className="h-full w-full -rotate-90">

@@ -132,6 +132,7 @@ export default function TripTracker() {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

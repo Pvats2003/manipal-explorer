@@ -149,7 +149,42 @@ export default function Admin() {
             </Card>
           ))}
         </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <CalendarHeart className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-bold">Community events ({events.length})</h2>
+          </div>
+          {events.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No events yet.</p>
+          ) : events.map((ev) => {
+            const cat = categoryMeta(ev.category);
+            return (
+              <Card key={ev.id} className={`flex flex-wrap items-center justify-between gap-3 p-4 ${ev.hidden ? "opacity-60" : ""}`}>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span>{cat.emoji}</span>
+                    <div className="font-semibold truncate">{ev.title}</div>
+                    {ev.hidden && <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">Hidden</span>}
+                  </div>
+                  <div className="text-xs text-muted-foreground truncate">
+                    {format(new Date(ev.starts_at), "d MMM, h:mm a")} · {ev.location}
+                  </div>
+                </div>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="icon" onClick={() => toggleHide(ev)} title={ev.hidden ? "Restore" : "Hide"}>
+                    {ev.hidden ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => removeEvent(ev.id)}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
       </div>
+      <Footer />
     </div>
   );
 }

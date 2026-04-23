@@ -17,6 +17,7 @@ import TripTracker from "./pages/TripTracker.tsx";
 import TripPlanner from "./pages/TripPlanner.tsx";
 import FresherGuide from "./pages/FresherGuide.tsx";
 import PhotoWall from "./pages/PhotoWall.tsx";
+import Events from "./pages/Events.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="/trip-planner" element={<TripPlanner />} />
               <Route path="/fresher-guide" element={<FresherGuide />} />
               <Route path="/photo-wall" element={<PhotoWall />} />
+              <Route path="/events" element={<Events />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

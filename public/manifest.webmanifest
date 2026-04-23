@@ -1,0 +1,12 @@
+{
+  "name": "Karavali — A Manipal Student Guide",
+  "short_name": "Karavali",
+  "description": "Coastal Karnataka, student-discovered.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#0A5C63",
+  "background_color": "#F7F3EE",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

@@ -1,8 +1,10 @@
 export default function Footer() {
   return (
-    <footer className="mt-12 border-t border-border/50 py-6 text-center text-xs text-muted-foreground">
-      <div className="container px-4">
-        Manipal Wanderlust v1.0 — Made with ❤️ for MIT students · {new Date().getFullYear()}
+    <footer className="mt-16 border-t border-border/60 bg-background py-10">
+      <div className="container px-4 text-center text-sm text-muted-foreground">
+        <div className="font-display text-xl font-bold text-primary">Karavali — A Manipal Student Guide</div>
+        <p className="mt-2">Made with ❤️ by MIT Manipal students · Udupi, Karnataka</p>
+        <p className="mt-1 text-xs text-muted-foreground/80">© {new Date().getFullYear()} Karavali · @karavali</p>
       </div>
     </footer>
   );

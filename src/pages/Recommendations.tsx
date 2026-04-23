@@ -138,7 +138,7 @@ export default function Recommendations() {
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">
             <Sparkles className="h-4 w-4" /> Top picks for you
           </div>
-          <h1 className="text-3xl font-bold md:text-4xl">Your hidden spots</h1>
+          <h1 className="font-display text-3xl font-bold md:text-4xl">Your Karavali picks</h1>
           <div className="flex flex-wrap gap-2 pt-1">
             {prefs.moods.map((m) => <Badge key={m} variant="secondary" className="capitalize">{m}</Badge>)}
             <Badge variant="outline" className="capitalize">{prefs.budget} budget · ₹{prefs.budgetAmount}</Badge>

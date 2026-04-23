@@ -21,8 +21,8 @@ export default function FresherGuide() {
       <div className="container max-w-4xl px-4 py-8 md:py-12">
         <div className="mb-6 space-y-2">
           <Badge variant="outline" className="gap-1"><GraduationCap className="h-3 w-3" /> Fresher Survival Guide</Badge>
-          <h1 className="text-3xl font-extrabold md:text-4xl">Everything they don't tell you</h1>
-          <p className="text-muted-foreground">Insider tips from seniors — transport, food, money, safety, fun. Saved for offline reading.</p>
+          <h1 className="font-display text-3xl font-bold md:text-4xl">New to Manipal? Karavali has you covered. 🌴</h1>
+          <p className="text-muted-foreground">Your first week, first month, and four years — mapped out by seniors who've been there.</p>
         </div>
 
         <div className="relative mb-4">

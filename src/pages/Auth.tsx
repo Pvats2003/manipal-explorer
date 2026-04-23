@@ -82,7 +82,7 @@ export default function Auth() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-hero shadow-glow">
             <Compass className="h-5 w-5 text-primary-foreground" />
           </div>
-          Manipal Hidden Spots
+          Karavali
         </Link>
 
         <Tabs defaultValue="signin">

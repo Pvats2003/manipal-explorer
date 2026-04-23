@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,6 +24,15 @@ import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
 
+function RouteFade({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  return (
+    <div key={location.pathname} className="page-fade-in">
+      {children}
+    </div>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
@@ -33,7 +42,8 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <ProfileSetupModal />
-            <Routes>
+            <RouteFade>
+              <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/recommendations" element={<Recommendations />} />
@@ -49,7 +59,8 @@ const App = () => (
               <Route path="/events" element={<Events />} />
               <Route path="/submit" element={<SubmitPlace />} />
               <Route path="*" element={<NotFound />} />
-            </Routes>
+              </Routes>
+            </RouteFade>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>

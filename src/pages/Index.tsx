@@ -8,8 +8,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Destination, UserPreferences } from "@/lib/types";
-import { ArrowDown, Sparkles, MapPin, TrendingUp, Heart, ListChecks, Wallet, Camera, GraduationCap, CalendarHeart } from "lucide-react";
-import heroImage from "@/assets/hero-coast.jpg";
+import { ArrowRight, Sparkles, Heart, ListChecks, Wallet, Camera, GraduationCap, CalendarHeart } from "lucide-react";
 import { TrendingThisWeek, RecentlyCheckedIn, RisingNewThisMonth } from "@/components/HomeCheckinRows";
 
 const Index = () => {
@@ -59,50 +58,70 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <img src={heroImage} alt="Manipal coast at sunset" className="h-full w-full object-cover" width={1536} height={1024} />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
-          <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-secondary/10" />
-        </div>
-        {/* Floating accent blobs */}
-        <div className="pointer-events-none absolute -left-10 top-20 h-32 w-32 rounded-full bg-primary/20 blur-3xl animate-float" />
-        <div className="pointer-events-none absolute right-10 bottom-10 h-40 w-40 rounded-full bg-secondary/20 blur-3xl animate-float" style={{ animationDelay: "1.5s" }} />
+      {/* Hero — full viewport, deep teal editorial */}
+      <section className="relative flex min-h-[calc(100vh-4rem)] items-center overflow-hidden bg-gradient-hero text-primary-foreground">
+        {/* Subtle wave SVG pattern overlay */}
+        <svg
+          aria-hidden
+          className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.08]"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <pattern id="kara-waves" x="0" y="0" width="160" height="80" patternUnits="userSpaceOnUse">
+              <path d="M0 40 Q 40 10, 80 40 T 160 40" fill="none" stroke="#E8C49A" strokeWidth="1.5" />
+              <path d="M0 60 Q 40 30, 80 60 T 160 60" fill="none" stroke="#E8C49A" strokeWidth="1.5" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#kara-waves)" />
+        </svg>
 
-        <div className="container relative z-10 px-4 py-20 md:py-32">
+        <div className="container relative z-10 px-4 py-20">
           <div className="mx-auto max-w-3xl space-y-6 text-center animate-fade-in">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border/50 glass px-4 py-1.5 text-sm">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <span>For students, by students</span>
-            </div>
-            <h1 className="text-4xl font-extrabold leading-[1.05] md:text-6xl lg:text-7xl">
-              Find Manipal's <span className="bg-gradient-hero bg-clip-text text-transparent">hidden spots</span>
-            </h1>
-            <p className="mx-auto max-w-xl text-lg text-muted-foreground md:text-xl">
-              Beaches, treks, cafes, bars and late-night clubs — picked for your mood, budget and weekend plan.
+            <p className="font-sans text-xs font-light tracking-[0.35em] text-secondary md:text-sm">
+              A MANIPAL STUDENT GUIDE
             </p>
-            <div className="flex flex-wrap justify-center gap-3 pt-2">
+            <h1 className="font-display text-[36px] font-bold leading-[1.05] md:text-[56px]">
+              Coastal Karnataka,
+              <span className="block italic font-bold text-secondary">student-discovered.</span>
+            </h1>
+            <p className="mx-auto max-w-xl font-sans text-base text-secondary/95 md:text-lg">
+              60+ places. Real student tips. AI-powered itineraries.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
               <Button
                 size="lg"
-                className="bg-gradient-hero shadow-glow hover:scale-105 transition-transform"
                 onClick={() => formRef.current?.scrollIntoView({ behavior: "smooth" })}
+                className="bg-secondary text-primary hover:bg-secondary/90 font-semibold rounded-lg shadow-elevated"
               >
-                Plan my trip <ArrowDown className="ml-2 h-4 w-4" />
+                Start Exploring <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               {!user && (
-                <Button size="lg" variant="outline" onClick={() => navigate("/auth")}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => navigate("/auth")}
+                  className="border-secondary/60 bg-transparent text-primary-foreground hover:bg-white/10 hover:text-primary-foreground rounded-lg"
+                >
                   Sign up for smarter picks
                 </Button>
               )}
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-3 pt-6 text-sm">
-              <div className="flex items-center gap-2 rounded-full glass px-4 py-2"><MapPin className="h-4 w-4 text-primary" /> 28+ curated spots</div>
-              <div className="flex items-center gap-2 rounded-full glass px-4 py-2"><TrendingUp className="h-4 w-4 text-secondary" /> Personalized picks</div>
-              <div className="flex items-center gap-2 rounded-full glass px-4 py-2">☕ Cafes · 🏖 Beaches · 🍻 Bars</div>
-            </div>
           </div>
         </div>
+
+        {/* Wave divider into background */}
+        <svg
+          aria-hidden
+          className="absolute bottom-0 left-0 w-full"
+          viewBox="0 0 1440 80"
+          preserveAspectRatio="none"
+          style={{ height: 60 }}
+        >
+          <path
+            d="M0,40 C240,80 480,0 720,30 C960,60 1200,20 1440,50 L1440,80 L0,80 Z"
+            fill="hsl(35 33% 95%)"
+          />
+        </svg>
       </section>
 
       {/* Trending — community pulse, sits right under hero */}
@@ -193,7 +212,7 @@ const Index = () => {
             </div>
           )}
           <div className="text-center">
-            <h2 className="text-3xl font-bold md:text-4xl">Chat with Vibe</h2>
+            <h2 className="font-display text-3xl font-bold md:text-4xl">Chat with Vibe</h2>
             <p className="mt-2 text-muted-foreground">Just tell our AI what you're in the mood for.</p>
           </div>
           <VibeChat onComplete={handleSubmit} />
@@ -204,7 +223,7 @@ const Index = () => {
       {popular.length > 0 && (
         <section className="container px-4 py-16">
           <div className="mx-auto max-w-6xl">
-            <h2 className="mb-6 text-2xl font-bold md:text-3xl">Top-rated near you</h2>
+            <h2 className="section-eyebrow mb-6 font-display text-2xl font-bold md:text-3xl">Top-rated near you</h2>
             <div className="grid gap-6 md:grid-cols-3">
               {popular.map((d) => (
                 <DestinationCard key={d.id} destination={d} />

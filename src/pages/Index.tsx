@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import VibeChat from "@/components/VibeChat";
 import DestinationCard from "@/components/DestinationCard";
 import { Button } from "@/components/ui/button";
@@ -196,11 +197,7 @@ const Index = () => {
         </section>
       )}
 
-      <footer className="border-t border-border/50 py-8 text-center text-sm text-muted-foreground">
-        <div className="container px-4">
-          Made with 🌊 for Manipal students · {new Date().getFullYear()}
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

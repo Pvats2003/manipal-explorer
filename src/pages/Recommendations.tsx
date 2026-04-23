@@ -109,9 +109,18 @@ export default function Recommendations() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container max-w-6xl space-y-6 px-4 py-6 md:py-8">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Edit preferences
-        </Button>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Edit preferences
+          </Button>
+          <WeatherWidget onInsight={setWeather} />
+        </div>
+
+        {weather && (
+          <div className="rounded-2xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm font-semibold animate-fade-in">
+            <span className="mr-2 text-base">{weather.emoji}</span>{weather.message}
+          </div>
+        )}
 
         <div className="space-y-2 animate-fade-in">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">

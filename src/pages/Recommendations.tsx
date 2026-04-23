@@ -21,7 +21,8 @@ export default function Recommendations() {
   const [results, setResults] = useState<ScoredDestination[]>([]);
   const [prefs, setPrefs] = useState<UserPreferences | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeCat, setActiveCat] = useState<string>("all");
+  const [activeVibes, setActiveVibes] = useState<string[]>([]);
+  const [openNowOnly, setOpenNowOnly] = useState(false);
   const [chatHistory, setChatHistory] = useState<{ role: string; content: string }[]>([]);
 
   useEffect(() => {
@@ -67,10 +68,28 @@ export default function Recommendations() {
     );
   }
 
-  const categoriesPresent = Array.from(new Set(results.map((r) => r.category)));
-  const filtered = activeCat === "all" ? results : results.filter((r) => r.category === activeCat);
+  const vibesPresent = Array.from(new Set(results.flatMap((r) => r.moods))).sort();
+
+  // AND logic; if <3 results, fallback to OR
+  let filterMode: "and" | "or" | "none" = "none";
+  let filtered = results;
+  if (activeVibes.length > 0) {
+    const andMatch = results.filter((r) => activeVibes.every((v) => r.moods.includes(v)));
+    if (andMatch.length >= 3) {
+      filtered = andMatch;
+      filterMode = "and";
+    } else {
+      filtered = results.filter((r) => activeVibes.some((v) => r.moods.includes(v)));
+      filterMode = "or";
+    }
+  }
+  if (openNowOnly) filtered = filtered.filter((r) => isOpenNow(r.opening_hours));
+
   const top = filtered.slice(0, 2);
   const others = filtered.slice(2, 8);
+
+  const toggleVibe = (v: string) =>
+    setActiveVibes((cur) => (cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]));
 
   return (
     <div className="min-h-screen bg-background">

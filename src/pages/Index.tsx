@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { Destination, UserPreferences } from "@/lib/types";
 import { ArrowDown, Sparkles, MapPin, TrendingUp, Heart, ListChecks, Wallet, Camera, GraduationCap, CalendarHeart } from "lucide-react";
 import heroImage from "@/assets/hero-coast.jpg";
+import { TrendingThisWeek, RecentlyCheckedIn, RisingNewThisMonth } from "@/components/HomeCheckinRows";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -103,6 +104,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Trending — community pulse, sits right under hero */}
+      <TrendingThisWeek />
 
       {/* Form */}
       <section ref={formRef} className="container px-4 py-16">
@@ -209,6 +213,12 @@ const Index = () => {
           </div>
         </section>
       )}
+
+      {/* Recently checked in — live community pulse */}
+      <RecentlyCheckedIn />
+
+      {/* Rising — new this month */}
+      <RisingNewThisMonth />
 
       <Footer />
     </div>

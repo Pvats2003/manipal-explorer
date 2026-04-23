@@ -41,6 +41,7 @@ export interface Destination {
   longitude: number | null;
   best_time: string | null;
   opening_hours?: OpeningHours | null;
+  created_at?: string;
 }
 
 export type DayHours = "24hrs" | "closed" | { open: string; close: string };

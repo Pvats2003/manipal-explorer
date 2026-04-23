@@ -4,17 +4,20 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, Star, Clock } from "lucide-react";
 import type { Destination } from "@/lib/types";
 import { getOpenStatus } from "@/lib/openingHours";
+import { isNewPlace } from "@/lib/checkins";
 
 interface Props {
   destination: Destination;
   rank?: number;
   className?: string;
+  checkinCount?: number;
 }
 
 const FALLBACK_GRADIENT = "bg-gradient-hero";
 
-export default function DestinationCard({ destination, rank, className }: Props) {
+export default function DestinationCard({ destination, rank, className, checkinCount }: Props) {
   const status = getOpenStatus(destination.opening_hours);
+  const isNew = isNewPlace(destination.created_at);
   return (
     <Link to={`/destination/${destination.id}`} className={className}>
       <Card className="group h-full overflow-hidden border-border/50 bg-gradient-card shadow-card transition-smooth hover:shadow-glow hover:-translate-y-1">
@@ -31,6 +34,11 @@ export default function DestinationCard({ destination, rank, className }: Props)
           {rank && (
             <div className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-background/90 font-bold text-primary backdrop-blur">
               #{rank}
+            </div>
+          )}
+          {isNew && !rank && (
+            <div className="absolute left-4 top-4 rounded-full bg-secondary px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-secondary-foreground shadow-md">
+              NEW
             </div>
           )}
           <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-background/90 px-3 py-1 text-sm font-semibold backdrop-blur">
@@ -52,6 +60,11 @@ export default function DestinationCard({ destination, rank, className }: Props)
               <Clock className="h-3.5 w-3.5" />
               {destination.duration_type === "day" ? "Day trip" : "Multi-day"}
             </span>
+            {typeof checkinCount === "number" && checkinCount > 0 && (
+              <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 font-semibold text-primary">
+                👣 {checkinCount} been here
+              </span>
+            )}
             {status && (
               <span className="ml-auto flex items-center gap-1.5">
                 <span

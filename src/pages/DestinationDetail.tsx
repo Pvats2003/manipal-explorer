@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { Destination } from "@/lib/types";
 import { ArrowLeft, Heart, MapPin, Star, Bookmark, ExternalLink, Clock } from "lucide-react";
 import { toast } from "sonner";
+import CheckInButton from "@/components/CheckInButton";
 
 export default function DestinationDetail() {
   const { id } = useParams();
@@ -116,6 +117,10 @@ export default function DestinationDetail() {
             <Button variant="outline"><ExternalLink className="mr-2 h-4 w-4" /> Open in Maps</Button>
           </a>
         </div>
+
+        <Card className="bg-gradient-card p-5 shadow-card">
+          <CheckInButton placeId={dest.id} />
+        </Card>
 
         <div className="grid gap-6 md:grid-cols-3">
           <div className="space-y-6 md:col-span-2">

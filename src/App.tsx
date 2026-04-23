@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import ProfileSetupModal from "@/components/ProfileSetupModal";
 import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
 import Recommendations from "./pages/Recommendations.tsx";
@@ -30,6 +31,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ProfileSetupModal />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />

@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Compass, Heart, History, ListChecks, LogOut, Moon, Settings, Sun, User, Wallet } from "lucide-react";
+import { Camera, Compass, GraduationCap, Heart, History, ListChecks, LogOut, Moon, Settings, Sparkles, Sun, User, Wallet } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,10 +28,13 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-2">
-          <Link to="/bucket-list" className="hidden md:inline-flex">
+          <Link to="/trip-planner" className="hidden lg:inline-flex">
+            <Button variant="ghost" size="sm"><Sparkles className="mr-1.5 h-4 w-4" /> Planner</Button>
+          </Link>
+          <Link to="/bucket-list" className="hidden lg:inline-flex">
             <Button variant="ghost" size="sm"><ListChecks className="mr-1.5 h-4 w-4" /> Bucket List</Button>
           </Link>
-          <Link to="/trip-tracker" className="hidden md:inline-flex">
+          <Link to="/trip-tracker" className="hidden lg:inline-flex">
             <Button variant="ghost" size="sm"><Wallet className="mr-1.5 h-4 w-4" /> Tracker</Button>
           </Link>
           <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle theme">
@@ -46,11 +49,20 @@ export default function Navbar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={() => navigate("/bucket-list")} className="md:hidden">
+                <DropdownMenuItem onClick={() => navigate("/trip-planner")} className="lg:hidden">
+                  <Sparkles className="mr-2 h-4 w-4" /> Trip Planner
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/bucket-list")} className="lg:hidden">
                   <ListChecks className="mr-2 h-4 w-4" /> Bucket List
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/trip-tracker")} className="md:hidden">
+                <DropdownMenuItem onClick={() => navigate("/trip-tracker")} className="lg:hidden">
                   <Wallet className="mr-2 h-4 w-4" /> Trip Tracker
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/fresher-guide")}>
+                  <GraduationCap className="mr-2 h-4 w-4" /> Fresher Guide
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/photo-wall")}>
+                  <Camera className="mr-2 h-4 w-4" /> Photo Wall
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/saved")}>
                   <Heart className="mr-2 h-4 w-4" /> Saved trips

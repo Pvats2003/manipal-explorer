@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Star, Clock } from "lucide-react";
 import type { Destination } from "@/lib/types";
+import { getOpenStatus } from "@/lib/openingHours";
 
 interface Props {
   destination: Destination;
@@ -13,6 +14,7 @@ interface Props {
 const FALLBACK_GRADIENT = "bg-gradient-hero";
 
 export default function DestinationCard({ destination, rank, className }: Props) {
+  const status = getOpenStatus(destination.opening_hours);
   return (
     <Link to={`/destination/${destination.id}`} className={className}>
       <Card className="group h-full overflow-hidden border-border/50 bg-gradient-card shadow-card transition-smooth hover:shadow-glow hover:-translate-y-1">
@@ -50,12 +52,31 @@ export default function DestinationCard({ destination, rank, className }: Props)
               <Clock className="h-3.5 w-3.5" />
               {destination.duration_type === "day" ? "Day trip" : "Multi-day"}
             </span>
+            {status && (
+              <span className="ml-auto flex items-center gap-1.5">
+                <span
+                  className={`inline-block h-2 w-2 rounded-full ${
+                    status.state === "open"
+                      ? "bg-green-500 animate-pulse"
+                      : status.state === "closing-soon"
+                      ? "bg-amber-500"
+                      : "bg-red-500"
+                  }`}
+                />
+                <span className={status.state === "open" ? "font-semibold text-green-600 dark:text-green-400" : status.state === "closing-soon" ? "font-semibold text-amber-600 dark:text-amber-400" : "text-muted-foreground"}>
+                  {status.label}
+                </span>
+              </span>
+            )}
           </div>
-          <div className="flex flex-wrap gap-1.5">
-            {destination.moods.slice(0, 3).map((m) => (
-              <Badge key={m} variant="secondary" className="text-xs capitalize">
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {destination.moods.slice(0, 4).map((m, i) => (
+              <span
+                key={m}
+                className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize ${VIBE_CHIP[i % VIBE_CHIP.length]}`}
+              >
                 {m}
-              </Badge>
+              </span>
             ))}
           </div>
         </div>
@@ -63,3 +84,10 @@ export default function DestinationCard({ destination, rank, className }: Props)
     </Link>
   );
 }
+
+const VIBE_CHIP = [
+  "bg-primary/15 text-primary",
+  "bg-secondary/15 text-secondary",
+  "bg-accent text-accent-foreground",
+  "bg-muted text-muted-foreground",
+];

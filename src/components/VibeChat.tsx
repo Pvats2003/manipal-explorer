@@ -117,7 +117,6 @@ export default function VibeChat({ onComplete }: Props) {
     } catch (e: any) {
       console.error("Vibe chat exception:", e);
       toast.error("Couldn't reach Vibe. Try again.");
-      setLoading(false);
     } finally {
       setLoading(false);
     }

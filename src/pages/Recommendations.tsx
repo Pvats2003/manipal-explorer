@@ -305,7 +305,7 @@ export default function Recommendations() {
       <Link
         to="/submit"
         aria-label="Submit a place"
-        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-hero text-primary-foreground shadow-glow transition-smooth hover:scale-110 md:bottom-8 md:right-8 md:h-16 md:w-16"
+        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-hero text-primary-foreground shadow-glow transition-smooth hover:scale-110"
       >
         <Plus className="h-6 w-6" />
       </Link>

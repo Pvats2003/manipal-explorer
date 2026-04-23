@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Destination, UserPreferences } from "@/lib/types";
-import { ArrowDown, Sparkles, MapPin, TrendingUp, Heart, ListChecks, Wallet, Camera, GraduationCap } from "lucide-react";
+import { ArrowDown, Sparkles, MapPin, TrendingUp, Heart, ListChecks, Wallet, Camera, GraduationCap, CalendarHeart } from "lucide-react";
 import heroImage from "@/assets/hero-coast.jpg";
 
 const Index = () => {
@@ -154,17 +154,30 @@ const Index = () => {
             </button>
           </div>
 
-          <button
-            onClick={() => navigate("/fresher-guide")}
-            className="group flex w-full items-center gap-3 rounded-2xl border border-border bg-gradient-card p-4 text-left shadow-card hover-lift"
-          >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-2xl">🎓</div>
-            <div className="flex-1">
-              <div className="font-bold">Fresher Survival Guide</div>
-              <div className="text-xs text-muted-foreground">Transport, food, safety, insider hacks for new MIT students</div>
-            </div>
-            <GraduationCap className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
-          </button>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              onClick={() => navigate("/events")}
+              className="group flex items-center gap-3 rounded-2xl border border-secondary/30 bg-gradient-card p-4 text-left shadow-card hover-lift"
+            >
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary/20 text-2xl">🎪</div>
+              <div className="flex-1 min-w-0">
+                <div className="font-bold">Live Events Board</div>
+                <div className="truncate text-xs text-muted-foreground">Fests, gigs, food pop-ups</div>
+              </div>
+              <CalendarHeart className="h-4 w-4 text-muted-foreground group-hover:text-secondary" />
+            </button>
+            <button
+              onClick={() => navigate("/fresher-guide")}
+              className="group flex items-center gap-3 rounded-2xl border border-border bg-gradient-card p-4 text-left shadow-card hover-lift"
+            >
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-2xl">🎓</div>
+              <div className="flex-1 min-w-0">
+                <div className="font-bold">Fresher Survival Guide</div>
+                <div className="truncate text-xs text-muted-foreground">Insider hacks for new MIT students</div>
+              </div>
+              <GraduationCap className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
+            </button>
+          </div>
 
           {user && taste && tastePersona && (
             <div className="rounded-2xl border border-primary/20 bg-gradient-card p-4 shadow-card animate-fade-in">

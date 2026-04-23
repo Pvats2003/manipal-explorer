@@ -74,7 +74,7 @@ export function TrendingThisWeek() {
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
             <h2 className="flex items-center gap-2 text-2xl font-bold md:text-3xl">
-              <Flame className="h-6 w-6 text-orange-500" /> Trending this week
+              <Flame className="h-6 w-6 text-accent" /> Trending this week
             </h2>
             <p className="text-sm text-muted-foreground">Where MIT students are checking in right now.</p>
           </div>
@@ -92,13 +92,13 @@ export function TrendingThisWeek() {
                 dest={dest}
                 isNew={isNewPlace(dest.created_at)}
                 badge={
-                  <div className="flex items-center gap-1 rounded-full bg-orange-500 px-2.5 py-1 text-xs font-extrabold text-white shadow-md">
+                  <div className="flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-xs font-extrabold text-accent-foreground shadow-md">
                     <Flame className="h-3 w-3" /> #{idx + 1}
                   </div>
                 }
                 footer={
                   <>
-                    <div className="text-xs font-semibold text-orange-600 dark:text-orange-400">
+                    <div className="text-xs font-semibold text-accent">
                       {entry.weekly_count * 3} interactions this week
                     </div>
                     <div className="flex items-center justify-between text-xs text-muted-foreground">

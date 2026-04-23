@@ -76,7 +76,7 @@ export default function CheckInButton({ placeId }: { placeId: string }) {
         size="lg"
         className={`w-full text-base font-bold transition-all sm:w-auto ${
           done
-            ? "bg-green-600 hover:bg-green-600 text-white shadow-[0_0_20px_hsl(142_71%_45%/0.4)]"
+            ? "bg-success hover:bg-success text-success-foreground shadow-[0_0_20px_hsl(var(--success)/0.4)]"
             : "bg-gradient-hero shadow-glow hover:scale-[1.02]"
         }`}
       >

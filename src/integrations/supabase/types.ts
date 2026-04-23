@@ -254,6 +254,66 @@ export type Database = {
           },
         ]
       }
+      place_submissions: {
+        Row: {
+          best_times: string[]
+          category: string
+          cost_range: string
+          description: string
+          id: string
+          image_url: string | null
+          maps_link: string | null
+          name: string
+          opening_hours: string | null
+          pro_tip: string | null
+          reviewed_at: string | null
+          status: string
+          submitted_at: string
+          submitted_by: string | null
+          submitter_batch: number | null
+          updated_at: string
+          vibes: string[]
+        }
+        Insert: {
+          best_times?: string[]
+          category: string
+          cost_range?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          maps_link?: string | null
+          name: string
+          opening_hours?: string | null
+          pro_tip?: string | null
+          reviewed_at?: string | null
+          status?: string
+          submitted_at?: string
+          submitted_by?: string | null
+          submitter_batch?: number | null
+          updated_at?: string
+          vibes?: string[]
+        }
+        Update: {
+          best_times?: string[]
+          category?: string
+          cost_range?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          maps_link?: string | null
+          name?: string
+          opening_hours?: string | null
+          pro_tip?: string | null
+          reviewed_at?: string | null
+          status?: string
+          submitted_at?: string
+          submitted_by?: string | null
+          submitter_batch?: number | null
+          updated_at?: string
+          vibes?: string[]
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

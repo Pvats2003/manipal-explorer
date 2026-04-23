@@ -13,7 +13,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { scoreDestinations } from "@/lib/recommendation";
 import type { Destination, ScoredDestination, UserPreferences } from "@/lib/types";
 import { isOpenNow } from "@/lib/openingHours";
-import { ArrowLeft, Check, Sparkles, Star, Filter, X, Clock } from "lucide-react";
+import { ArrowLeft, Check, Sparkles, Star, Filter, X, Clock, Plus } from "lucide-react";
+import { Link } from "react-router-dom";
 import WeatherWidget from "@/components/WeatherWidget";
 import type { WeatherInsight } from "@/lib/weather";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -299,6 +300,15 @@ export default function Recommendations() {
           </div>
         )}
       </div>
+
+      {/* Floating submit button */}
+      <Link
+        to="/submit"
+        aria-label="Submit a place"
+        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-hero text-primary-foreground shadow-glow transition-smooth hover:scale-110 md:bottom-8 md:right-8 md:h-16 md:w-16"
+      >
+        <Plus className="h-6 w-6" />
+      </Link>
     </div>
   );
 }

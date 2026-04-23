@@ -11,10 +11,29 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { Destination } from "@/lib/types";
 import type { CommunityEvent } from "@/lib/events";
 import { categoryMeta } from "@/lib/events";
-import { Trash2, Plus, ShieldAlert, EyeOff, Eye, CalendarHeart } from "lucide-react";
+import { Trash2, Plus, ShieldAlert, EyeOff, Eye, CalendarHeart, MapPin, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import Footer from "@/components/Footer";
+import { mapCategoryToken, costToBudgetTier, costToFoodCost } from "@/lib/submitOptions";
+
+interface PlaceSubmission {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  maps_link: string | null;
+  vibes: string[];
+  cost_range: string;
+  best_times: string[];
+  opening_hours: string | null;
+  pro_tip: string | null;
+  image_url: string | null;
+  submitter_batch: number | null;
+  status: string;
+  submitted_at: string;
+  submitted_by: string | null;
+}
 
 const empty = {
   name: "", description: "", category: "beach", moods: "chill", travel_types: "solo,friends,partner",
@@ -28,6 +47,7 @@ export default function Admin() {
   const navigate = useNavigate();
   const [items, setItems] = useState<Destination[]>([]);
   const [events, setEvents] = useState<CommunityEvent[]>([]);
+  const [submissions, setSubmissions] = useState<PlaceSubmission[]>([]);
   const [form, setForm] = useState(empty);
 
   const load = () => {
@@ -36,6 +56,9 @@ export default function Admin() {
     });
     supabase.from("events").select("*").order("created_at", { ascending: false }).then(({ data }) => {
       setEvents((data as CommunityEvent[]) || []);
+    });
+    supabase.from("place_submissions").select("*").eq("status", "pending").order("submitted_at", { ascending: false }).then(({ data }) => {
+      setSubmissions((data as PlaceSubmission[]) || []);
     });
   };
 
@@ -105,6 +128,48 @@ export default function Admin() {
     load();
   };
 
+  const approveSubmission = async (s: PlaceSubmission) => {
+    const { error: insErr } = await supabase.from("destinations").insert([{
+      name: s.name,
+      description: s.description,
+      category: mapCategoryToken(s.category),
+      moods: s.vibes,
+      travel_types: ["solo", "friends", "partner"],
+      distance_km: 5,
+      duration_type: "day",
+      budget_tier: costToBudgetTier(s.cost_range),
+      transport_cost: 0,
+      food_cost: costToFoodCost(s.cost_range),
+      stay_cost: 0,
+      entry_fee: 0,
+      rating: 8,
+      activities: [],
+      image_url: s.image_url,
+      best_time: s.best_times.join(", ") || null,
+    }]);
+    if (insErr) { toast.error(insErr.message); return; }
+    const { error: updErr } = await supabase.from("place_submissions")
+      .update({ status: "approved", reviewed_at: new Date().toISOString() }).eq("id", s.id);
+    if (updErr) { toast.error(updErr.message); return; }
+    if (s.submitted_by) {
+      // +50 explorer points
+      const { data: prof } = await supabase.from("profiles").select("explorer_score").eq("user_id", s.submitted_by).maybeSingle();
+      const score = (prof?.explorer_score ?? 0) + 50;
+      await supabase.from("profiles").update({ explorer_score: score }).eq("user_id", s.submitted_by);
+    }
+    toast.success("Approved & added to destinations");
+    load();
+  };
+
+  const rejectSubmission = async (id: string) => {
+    if (!confirm("Reject this submission?")) return;
+    const { error } = await supabase.from("place_submissions")
+      .update({ status: "rejected", reviewed_at: new Date().toISOString() }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Rejected");
+    load();
+  };
+
   const set = (k: string, v: any) => setForm((f) => ({ ...f, [k]: v }));
 
   return (
@@ -112,6 +177,56 @@ export default function Admin() {
       <Navbar />
       <div className="container max-w-5xl space-y-8 px-4 py-8">
         <h1 className="text-3xl font-bold">Admin · Destinations</h1>
+
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-bold">Pending submissions ({submissions.length})</h2>
+          </div>
+          {submissions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No pending submissions. 🌴</p>
+          ) : submissions.map((s) => (
+            <Card key={s.id} className="overflow-hidden bg-gradient-card shadow-card">
+              <div className="flex flex-col gap-4 md:flex-row">
+                {s.image_url && (
+                  <img src={s.image_url} alt={s.name} className="h-40 w-full object-cover md:h-auto md:w-48" />
+                )}
+                <div className="flex-1 space-y-2 p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <div className="font-bold">{s.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {s.category} · submitted {format(new Date(s.submitted_at), "d MMM, h:mm a")}
+                        {s.submitter_batch && ` · Batch ${s.submitter_batch}`}
+                      </div>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <Button size="sm" onClick={() => approveSubmission(s)} className="bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                        <Check className="mr-1 h-4 w-4" /> Approve
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => rejectSubmission(s.id)}>
+                        <X className="mr-1 h-4 w-4" /> Reject
+                      </Button>
+                    </div>
+                  </div>
+                  <p className="text-sm">{s.description}</p>
+                  <div className="flex flex-wrap gap-1.5 text-xs">
+                    {s.vibes.map((v) => <span key={v} className="rounded-full bg-primary/10 px-2 py-0.5 capitalize text-primary">{v}</span>)}
+                    {s.best_times.map((t) => <span key={t} className="rounded-full bg-muted px-2 py-0.5">{t}</span>)}
+                    <span className="rounded-full bg-muted px-2 py-0.5">Cost: {s.cost_range}</span>
+                    {s.opening_hours && <span className="rounded-full bg-muted px-2 py-0.5">⏰ {s.opening_hours}</span>}
+                  </div>
+                  {s.pro_tip && <p className="text-xs italic text-muted-foreground">💡 {s.pro_tip}</p>}
+                  {s.maps_link && (
+                    <a href={s.maps_link} target="_blank" rel="noreferrer" className="inline-block text-xs font-semibold text-primary underline">
+                      View map →
+                    </a>
+                  )}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
 
         <Card className="space-y-4 bg-gradient-card p-6 shadow-card">
           <h2 className="text-xl font-bold">Add new destination</h2>

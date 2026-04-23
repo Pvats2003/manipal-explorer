@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Camera, CalendarHeart, CheckCircle2, Compass, GraduationCap, Heart, History, ListChecks, LogOut, Moon, Settings, Sparkles, Sun, User, Wallet } from "lucide-react";
+import { Camera, CalendarHeart, CheckCircle2, Compass, GraduationCap, Heart, History, ListChecks, LogOut, Moon, Plus, Settings, Sparkles, Sun, User, Wallet } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,6 +37,9 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <Link to="/events" className="hidden md:inline-flex">
             <Button variant="ghost" size="sm"><CalendarHeart className="mr-1.5 h-4 w-4" /> Events</Button>
+          </Link>
+          <Link to="/submit" className="hidden md:inline-flex">
+            <Button variant="ghost" size="sm"><Plus className="mr-1.5 h-4 w-4" /> Submit</Button>
           </Link>
           <Link to="/trip-planner" className="hidden lg:inline-flex">
             <Button variant="ghost" size="sm"><Sparkles className="mr-1.5 h-4 w-4" /> Planner</Button>

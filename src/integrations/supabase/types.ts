@@ -35,6 +35,38 @@ export type Database = {
         }
         Relationships: []
       }
+      checkins: {
+        Row: {
+          checked_in_at: string
+          device_fingerprint: string | null
+          id: string
+          place_id: string
+          user_id: string | null
+        }
+        Insert: {
+          checked_in_at?: string
+          device_fingerprint?: string | null
+          id?: string
+          place_id: string
+          user_id?: string | null
+        }
+        Update: {
+          checked_in_at?: string
+          device_fingerprint?: string | null
+          id?: string
+          place_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkins_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       destinations: {
         Row: {
           activities: string[]

@@ -16,6 +16,8 @@ import { isOpenNow } from "@/lib/openingHours";
 import { ArrowLeft, Check, Sparkles, Star, Filter, X, Clock } from "lucide-react";
 import WeatherWidget from "@/components/WeatherWidget";
 import type { WeatherInsight } from "@/lib/weather";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getCheckinCountsBulk } from "@/lib/checkins";
 
 export default function Recommendations() {
   const navigate = useNavigate();
@@ -27,6 +29,8 @@ export default function Recommendations() {
   const [openNowOnly, setOpenNowOnly] = useState(false);
   const [chatHistory, setChatHistory] = useState<{ role: string; content: string }[]>([]);
   const [weather, setWeather] = useState<WeatherInsight | null>(null);
+  const [sortBy, setSortBy] = useState<"match" | "visited">("match");
+  const [checkinCounts, setCheckinCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const stored = sessionStorage.getItem("mhs_prefs");
@@ -56,6 +60,9 @@ export default function Recommendations() {
       const scored = scoreDestinations((data as Destination[]) || [], p, pastCats);
       setResults(scored);
       setLoading(false);
+      if (scored.length) {
+        getCheckinCountsBulk(scored.map((s) => s.id)).then(setCheckinCounts);
+      }
     })();
   }, [navigate, user]);
 
@@ -97,6 +104,10 @@ export default function Recommendations() {
       const bBoost = (b.moods.some((m) => boostMoods.has(m)) || boostCats.has(b.category)) ? 1 : 0;
       return bBoost - aBoost;
     });
+  }
+
+  if (sortBy === "visited") {
+    filtered = [...filtered].sort((a, b) => (checkinCounts[b.id] || 0) - (checkinCounts[a.id] || 0));
   }
 
   const top = filtered.slice(0, 2);
@@ -171,6 +182,15 @@ export default function Recommendations() {
               Open now
               <Switch checked={openNowOnly} onCheckedChange={setOpenNowOnly} />
             </label>
+            <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
+              <SelectTrigger className="ml-2 h-8 w-[140px] shrink-0 rounded-full border-border bg-background/60 text-xs font-semibold">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="match">Best match</SelectItem>
+                <SelectItem value="visited">Most visited 👣</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           {(activeVibes.length > 0 || openNowOnly) && (
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
@@ -272,7 +292,7 @@ export default function Recommendations() {
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
               {others.map((d, idx) => (
                 <div key={d.id} style={{ animationDelay: `${idx * 60}ms` }} className="animate-fade-in">
-                  <DestinationCard destination={d} />
+                  <DestinationCard destination={d} checkinCount={checkinCounts[d.id]} />
                 </div>
               ))}
             </div>

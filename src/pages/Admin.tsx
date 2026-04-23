@@ -178,6 +178,56 @@ export default function Admin() {
       <div className="container max-w-5xl space-y-8 px-4 py-8">
         <h1 className="text-3xl font-bold">Admin · Destinations</h1>
 
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-bold">Pending submissions ({submissions.length})</h2>
+          </div>
+          {submissions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No pending submissions. 🌴</p>
+          ) : submissions.map((s) => (
+            <Card key={s.id} className="overflow-hidden bg-gradient-card shadow-card">
+              <div className="flex flex-col gap-4 md:flex-row">
+                {s.image_url && (
+                  <img src={s.image_url} alt={s.name} className="h-40 w-full object-cover md:h-auto md:w-48" />
+                )}
+                <div className="flex-1 space-y-2 p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <div className="font-bold">{s.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {s.category} · submitted {format(new Date(s.submitted_at), "d MMM, h:mm a")}
+                        {s.submitter_batch && ` · Batch ${s.submitter_batch}`}
+                      </div>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <Button size="sm" onClick={() => approveSubmission(s)} className="bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                        <Check className="mr-1 h-4 w-4" /> Approve
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => rejectSubmission(s.id)}>
+                        <X className="mr-1 h-4 w-4" /> Reject
+                      </Button>
+                    </div>
+                  </div>
+                  <p className="text-sm">{s.description}</p>
+                  <div className="flex flex-wrap gap-1.5 text-xs">
+                    {s.vibes.map((v) => <span key={v} className="rounded-full bg-primary/10 px-2 py-0.5 capitalize text-primary">{v}</span>)}
+                    {s.best_times.map((t) => <span key={t} className="rounded-full bg-muted px-2 py-0.5">{t}</span>)}
+                    <span className="rounded-full bg-muted px-2 py-0.5">Cost: {s.cost_range}</span>
+                    {s.opening_hours && <span className="rounded-full bg-muted px-2 py-0.5">⏰ {s.opening_hours}</span>}
+                  </div>
+                  {s.pro_tip && <p className="text-xs italic text-muted-foreground">💡 {s.pro_tip}</p>}
+                  {s.maps_link && (
+                    <a href={s.maps_link} target="_blank" rel="noreferrer" className="inline-block text-xs font-semibold text-primary underline">
+                      View map →
+                    </a>
+                  )}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+
         <Card className="space-y-4 bg-gradient-card p-6 shadow-card">
           <h2 className="text-xl font-bold">Add new destination</h2>
           <div className="grid gap-4 md:grid-cols-2">

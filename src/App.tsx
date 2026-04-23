@@ -12,6 +12,8 @@ import DestinationDetail from "./pages/DestinationDetail.tsx";
 import Saved from "./pages/Saved.tsx";
 import History from "./pages/History.tsx";
 import Admin from "./pages/Admin.tsx";
+import BucketList from "./pages/BucketList.tsx";
+import TripTracker from "./pages/TripTracker.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -32,6 +34,8 @@ const App = () => (
               <Route path="/saved" element={<Saved />} />
               <Route path="/history" element={<History />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/bucket-list" element={<BucketList />} />
+              <Route path="/trip-tracker" element={<TripTracker />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

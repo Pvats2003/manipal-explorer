@@ -14,6 +14,8 @@ import { scoreDestinations } from "@/lib/recommendation";
 import type { Destination, ScoredDestination, UserPreferences } from "@/lib/types";
 import { isOpenNow } from "@/lib/openingHours";
 import { ArrowLeft, Check, Sparkles, Star, Filter, X, Clock } from "lucide-react";
+import WeatherWidget from "@/components/WeatherWidget";
+import type { WeatherInsight } from "@/lib/weather";
 
 export default function Recommendations() {
   const navigate = useNavigate();
@@ -24,6 +26,7 @@ export default function Recommendations() {
   const [activeVibes, setActiveVibes] = useState<string[]>([]);
   const [openNowOnly, setOpenNowOnly] = useState(false);
   const [chatHistory, setChatHistory] = useState<{ role: string; content: string }[]>([]);
+  const [weather, setWeather] = useState<WeatherInsight | null>(null);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("mhs_prefs");
@@ -85,6 +88,17 @@ export default function Recommendations() {
   }
   if (openNowOnly) filtered = filtered.filter((r) => isOpenNow(r.opening_hours));
 
+  // Weather-aware boost
+  if (weather) {
+    const boostMoods = new Set(weather.boostMoods);
+    const boostCats = new Set(weather.boostCategories);
+    filtered = [...filtered].sort((a, b) => {
+      const aBoost = (a.moods.some((m) => boostMoods.has(m)) || boostCats.has(a.category)) ? 1 : 0;
+      const bBoost = (b.moods.some((m) => boostMoods.has(m)) || boostCats.has(b.category)) ? 1 : 0;
+      return bBoost - aBoost;
+    });
+  }
+
   const top = filtered.slice(0, 2);
   const others = filtered.slice(2, 8);
 
@@ -95,9 +109,18 @@ export default function Recommendations() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container max-w-6xl space-y-6 px-4 py-6 md:py-8">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Edit preferences
-        </Button>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Edit preferences
+          </Button>
+          <WeatherWidget onInsight={setWeather} />
+        </div>
+
+        {weather && (
+          <div className="rounded-2xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm font-semibold animate-fade-in">
+            <span className="mr-2 text-base">{weather.emoji}</span>{weather.message}
+          </div>
+        )}
 
         <div className="space-y-2 animate-fade-in">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">

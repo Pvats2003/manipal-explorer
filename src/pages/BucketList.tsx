@@ -56,7 +56,7 @@ export default function BucketList() {
   };
 
   const onShare = async () => {
-    const text = `I've completed ${completedCount}/${total} things on the The Karavali Bucket List 🌊 🌊 — Karavali App`;
+    const text = `I've completed ${completedCount}/${total} things on the Karavali Bucket List — karavali.app 🌊`;
     try {
       if (navigator.share) await navigator.share({ text });
       else { await navigator.clipboard.writeText(text); toast.success("Copied to clipboard!"); }
@@ -102,9 +102,9 @@ export default function BucketList() {
             </div>
           </div>
           <div className="flex-1 space-y-2">
-            <div className="text-xs font-semibold uppercase tracking-wider text-primary">The Karavali Bucket List 🌊</div>
-            <h1 className="text-3xl font-extrabold md:text-4xl">{tagline}</h1>
-            <p className="text-sm text-muted-foreground">Tick off iconic MIT Manipal experiences. Your progress saves automatically on this device.</p>
+            <div className="font-sans text-xs font-semibold uppercase tracking-[0.25em] text-primary">A Karavali Ritual</div>
+            <h1 className="font-display text-3xl font-bold md:text-4xl">The Karavali Bucket List 🌊</h1>
+            <p className="text-sm text-muted-foreground">{total} things every Manipal student should do before graduating.</p>
             <Button onClick={onShare} className="bg-gradient-hero shadow-glow">
               <Share2 className="mr-2 h-4 w-4" /> Share my progress
             </Button>

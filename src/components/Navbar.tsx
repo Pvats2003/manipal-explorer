@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Compass, Heart, History, LogOut, Moon, Settings, Sun, User } from "lucide-react";
+import { Compass, Heart, History, ListChecks, LogOut, Moon, Settings, Sun, User, Wallet } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +28,12 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-2">
+          <Link to="/bucket-list" className="hidden md:inline-flex">
+            <Button variant="ghost" size="sm"><ListChecks className="mr-1.5 h-4 w-4" /> Bucket List</Button>
+          </Link>
+          <Link to="/trip-tracker" className="hidden md:inline-flex">
+            <Button variant="ghost" size="sm"><Wallet className="mr-1.5 h-4 w-4" /> Tracker</Button>
+          </Link>
           <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle theme">
             {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
           </Button>
@@ -40,6 +46,12 @@ export default function Navbar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={() => navigate("/bucket-list")} className="md:hidden">
+                  <ListChecks className="mr-2 h-4 w-4" /> Bucket List
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/trip-tracker")} className="md:hidden">
+                  <Wallet className="mr-2 h-4 w-4" /> Trip Tracker
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/saved")}>
                   <Heart className="mr-2 h-4 w-4" /> Saved trips
                 </DropdownMenuItem>

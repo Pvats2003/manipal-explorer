@@ -40,7 +40,14 @@ export interface Destination {
   latitude: number | null;
   longitude: number | null;
   best_time: string | null;
+  opening_hours?: OpeningHours | null;
 }
+
+export type DayHours = "24hrs" | "closed" | { open: string; close: string };
+export type OpeningHours = {
+  monday?: DayHours; tuesday?: DayHours; wednesday?: DayHours; thursday?: DayHours;
+  friday?: DayHours; saturday?: DayHours; sunday?: DayHours;
+};
 
 export interface ScoredDestination extends Destination {
   score: number;

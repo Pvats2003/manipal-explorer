@@ -54,6 +54,9 @@ export default function VibeChat({ onComplete }: Props) {
             content: `I remember you like **${tp.moods.join(", ")}** vibes. Same again, or something different today?`,
           },
         ]);
+      })
+      .catch((err) => {
+        console.error("Error loading taste profile:", err);
       });
   }, [user]);
 
@@ -69,8 +72,12 @@ export default function VibeChat({ onComplete }: Props) {
       const { data, error } = await supabase.functions.invoke("vibe-chat", {
         body: { messages: next },
       });
-      if (error) throw error;
+      if (error) {
+        console.error("Vibe chat error:", error);
+        throw error;
+      }
       if (data?.error) {
+        console.error("Vibe chat response error:", data.error);
         toast.error(data.error);
         setLoading(false);
         return;
@@ -102,12 +109,15 @@ export default function VibeChat({ onComplete }: Props) {
             "mhs_chat",
             JSON.stringify([...next, ...(data.reply ? [{ role: "assistant", content: data.reply }] : [])]),
           );
-        } catch { /* ignore */ }
+        } catch (storageErr) {
+          console.error("Error saving chat history:", storageErr);
+        }
         setTimeout(() => onComplete(prefs), 800);
       }
     } catch (e: any) {
-      console.error(e);
+      console.error("Vibe chat exception:", e);
       toast.error("Couldn't reach Vibe. Try again.");
+      setLoading(false);
     } finally {
       setLoading(false);
     }

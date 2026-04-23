@@ -9,8 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Destination } from "@/lib/types";
-import { Trash2, Plus, ShieldAlert } from "lucide-react";
+import type { CommunityEvent } from "@/lib/events";
+import { categoryMeta } from "@/lib/events";
+import { Trash2, Plus, ShieldAlert, EyeOff, Eye, CalendarHeart } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import Footer from "@/components/Footer";
 
 const empty = {
   name: "", description: "", category: "beach", moods: "chill", travel_types: "solo,friends,partner",
@@ -23,11 +27,15 @@ export default function Admin() {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const [items, setItems] = useState<Destination[]>([]);
+  const [events, setEvents] = useState<CommunityEvent[]>([]);
   const [form, setForm] = useState(empty);
 
   const load = () => {
     supabase.from("destinations").select("*").order("name").then(({ data }) => {
       setItems((data as Destination[]) || []);
+    });
+    supabase.from("events").select("*").order("created_at", { ascending: false }).then(({ data }) => {
+      setEvents((data as CommunityEvent[]) || []);
     });
   };
 
@@ -80,6 +88,20 @@ export default function Admin() {
   const remove = async (id: string) => {
     await supabase.from("destinations").delete().eq("id", id);
     toast.success("Deleted");
+    load();
+  };
+
+  const toggleHide = async (ev: CommunityEvent) => {
+    const { error } = await supabase.from("events").update({ hidden: !ev.hidden }).eq("id", ev.id);
+    if (error) { toast.error("Failed"); return; }
+    toast.success(ev.hidden ? "Event restored" : "Event hidden");
+    load();
+  };
+
+  const removeEvent = async (id: string) => {
+    if (!confirm("Delete this event permanently?")) return;
+    await supabase.from("events").delete().eq("id", id);
+    toast.success("Event deleted");
     load();
   };
 

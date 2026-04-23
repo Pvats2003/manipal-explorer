@@ -54,7 +54,7 @@ export function buildIcs(ev: CommunityEvent): string {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Manipal Wanderlust//EN",
+    "PRODID:-//Karavali//EN",
     "BEGIN:VEVENT",
     `UID:${ev.id}@manipal-wanderlust`,
     `DTSTAMP:${fmt(new Date())}`,

@@ -11,41 +11,86 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { addTrip, clearMonth, deleteTrip, loadTrips, monthStats, type TripEntry } from "@/lib/tripTracker";
-import { Trash2, IndianRupee, TrendingUp, Calendar as CalendarIcon, Trophy } from "lucide-react";
+import { addCloudTrip, clearCloudTrips, deleteCloudTrip, fetchCloudTrips } from "@/lib/cloudSync";
+import { useAuth } from "@/contexts/AuthContext";
+import { CloudOff, Trash2, IndianRupee, TrendingUp, Calendar as CalendarIcon, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
 export default function TripTracker() {
+  const { user } = useAuth();
   const [trips, setTrips] = useState<TripEntry[]>([]);
   const [place, setPlace] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState("");
 
-  useEffect(() => { setTrips(loadTrips()); }, []);
+  useEffect(() => {
+    if (user) {
+      fetchCloudTrips(user.id).then((cloud) =>
+        setTrips(cloud.map((c) => ({ id: c.id, place: c.place, amount: c.amount, date: c.date, notes: c.notes, createdAt: c.createdAt })))
+      );
+    } else {
+      setTrips(loadTrips());
+    }
+  }, [user]);
 
   const stats = monthStats(trips);
   const maxWeek = Math.max(1, ...stats.weekly);
 
-  const onAdd = () => {
+  const onAdd = async () => {
     const amt = Number(amount);
     if (!place.trim() || !amt || amt <= 0) { toast.error("Enter a place and amount"); return; }
-    setTrips(addTrip({ place: place.trim(), amount: amt, date, notes: notes.trim() || undefined }));
+    if (user) {
+      try {
+        const t = await addCloudTrip(user.id, { place: place.trim(), amount: amt, date, notes: notes.trim() || undefined });
+        setTrips([{ id: t.id, place: t.place, amount: t.amount, date: t.date, notes: t.notes, createdAt: t.createdAt }, ...trips]);
+      } catch { toast.error("Couldn't sync trip"); return; }
+    } else {
+      setTrips(addTrip({ place: place.trim(), amount: amt, date, notes: notes.trim() || undefined }));
+    }
     setPlace(""); setAmount(""); setNotes("");
     toast.success("Trip logged!");
+  };
+
+  const onDelete = async (id: string) => {
+    if (user) {
+      try { await deleteCloudTrip(user.id, id); setTrips(trips.filter((t) => t.id !== id)); }
+      catch { toast.error("Couldn't delete"); }
+    } else {
+      setTrips(deleteTrip(id));
+    }
+  };
+
+  const onClear = async () => {
+    if (user) {
+      try { await clearCloudTrips(user.id); setTrips([]); toast.success("Cleared"); }
+      catch { toast.error("Couldn't clear"); }
+    } else {
+      setTrips(clearMonth());
+      toast.success("Cleared");
+    }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container max-w-5xl space-y-6 px-4 py-6">
+        {!user && (
+          <div className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-3 text-sm">
+            <CloudOff className="h-4 w-4 shrink-0 text-primary" />
+            <span className="flex-1 text-muted-foreground">Login to save your progress across devices.</span>
+          </div>
+        )}
+
         <div>
           <div className="text-xs font-semibold uppercase tracking-wider text-primary">Trip Tracker</div>
           <h1 className="text-3xl font-extrabold md:text-4xl">Track every outing</h1>
-          <p className="text-sm text-muted-foreground">See where your money goes. All data stays on your device.</p>
+          <p className="text-sm text-muted-foreground">
+            {user ? "Synced to your account across devices." : "All data stays on your device until you log in."}
+          </p>
         </div>
 
-        {/* Stats */}
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Stat icon={<IndianRupee className="h-4 w-4" />} label="Spent this month" value={`₹${stats.total}`} />
           <Stat icon={<CalendarIcon className="h-4 w-4" />} label="Outings" value={String(stats.count)} />
@@ -53,7 +98,6 @@ export default function TripTracker() {
           <Stat icon={<Trophy className="h-4 w-4" />} label="Biggest splurge" value={stats.biggest ? `₹${stats.biggest.amount}` : "—"} sub={stats.biggest?.place} />
         </div>
 
-        {/* Weekly chart */}
         <Card className="bg-gradient-card p-5 shadow-card">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-lg font-bold">This month, by week</h2>
@@ -73,7 +117,6 @@ export default function TripTracker() {
           </div>
         </Card>
 
-        {/* Log form */}
         <Card className="bg-gradient-card p-5 shadow-card">
           <h2 className="mb-4 text-lg font-bold">Log a trip</h2>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -85,7 +128,6 @@ export default function TripTracker() {
           <Button onClick={onAdd} className="mt-4 bg-gradient-hero shadow-glow">Log it</Button>
         </Card>
 
-        {/* List */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold">My spending</h2>
@@ -97,11 +139,11 @@ export default function TripTracker() {
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Clear all entries?</AlertDialogTitle>
-                    <AlertDialogDescription>This deletes every logged trip on this device. Cannot be undone.</AlertDialogDescription>
+                    <AlertDialogDescription>This deletes every logged trip. Cannot be undone.</AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Keep</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => { setTrips(clearMonth()); toast.success("Cleared"); }}>Delete all</AlertDialogAction>
+                    <AlertDialogAction onClick={onClear}>Delete all</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
@@ -122,7 +164,7 @@ export default function TripTracker() {
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     <div className="text-right font-extrabold text-primary">₹{t.amount}</div>
-                    <Button variant="ghost" size="icon" onClick={() => setTrips(deleteTrip(t.id))}>
+                    <Button variant="ghost" size="icon" onClick={() => onDelete(t.id)}>
                       <Trash2 className="h-4 w-4 text-muted-foreground" />
                     </Button>
                   </div>

@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      bucket_list_completions: {
+        Row: {
+          completed_at: string
+          id: string
+          item_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          item_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          item_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       destinations: {
         Row: {
           activities: string[]
@@ -204,30 +225,42 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          batch_year: number | null
           bio: string | null
           created_at: string
           display_name: string | null
+          explorer_score: number
           id: string
+          onboarded: boolean
+          profile_emoji: string
           taste_profile: Json | null
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
+          batch_year?: number | null
           bio?: string | null
           created_at?: string
           display_name?: string | null
+          explorer_score?: number
           id?: string
+          onboarded?: boolean
+          profile_emoji?: string
           taste_profile?: Json | null
           updated_at?: string
           user_id: string
         }
         Update: {
           avatar_url?: string | null
+          batch_year?: number | null
           bio?: string | null
           created_at?: string
           display_name?: string | null
+          explorer_score?: number
           id?: string
+          onboarded?: boolean
+          profile_emoji?: string
           taste_profile?: Json | null
           updated_at?: string
           user_id?: string
@@ -297,6 +330,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      trip_logs: {
+        Row: {
+          created_at: string
+          date_visited: string | null
+          destination_name: string
+          id: string
+          notes: string | null
+          rating: number | null
+          spent: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date_visited?: string | null
+          destination_name: string
+          id?: string
+          notes?: string | null
+          rating?: number | null
+          spent?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date_visited?: string | null
+          destination_name?: string
+          id?: string
+          notes?: string | null
+          rating?: number | null
+          spent?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

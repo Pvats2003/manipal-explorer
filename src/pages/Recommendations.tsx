@@ -7,25 +7,13 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { scoreDestinations } from "@/lib/recommendation";
 import type { Destination, ScoredDestination, UserPreferences } from "@/lib/types";
-import { ArrowLeft, Check, Sparkles, Star, Filter, Waves, Mountain, Coffee, UtensilsCrossed, Wine, PartyPopper, Trees, Camera } from "lucide-react";
-
-const CATEGORY_META: Record<string, { label: string; icon: any }> = {
-  all: { label: "All", icon: Sparkles },
-  beach: { label: "Beach", icon: Waves },
-  trek: { label: "Trek", icon: Mountain },
-  waterfall: { label: "Waterfall", icon: Trees },
-  cafe: { label: "Cafes", icon: Coffee },
-  restaurant: { label: "Restaurants", icon: UtensilsCrossed },
-  bar: { label: "Bars", icon: Wine },
-  lounge: { label: "Lounges", icon: Wine },
-  nightlife: { label: "Nightlife", icon: PartyPopper },
-  hangout: { label: "Hangouts", icon: Camera },
-  nature: { label: "Nature", icon: Trees },
-};
+import { isOpenNow } from "@/lib/openingHours";
+import { ArrowLeft, Check, Sparkles, Star, Filter, X, Clock } from "lucide-react";
 
 export default function Recommendations() {
   const navigate = useNavigate();

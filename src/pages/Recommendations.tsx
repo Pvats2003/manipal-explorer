@@ -7,25 +7,13 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { scoreDestinations } from "@/lib/recommendation";
 import type { Destination, ScoredDestination, UserPreferences } from "@/lib/types";
-import { ArrowLeft, Check, Sparkles, Star, Filter, Waves, Mountain, Coffee, UtensilsCrossed, Wine, PartyPopper, Trees, Camera } from "lucide-react";
-
-const CATEGORY_META: Record<string, { label: string; icon: any }> = {
-  all: { label: "All", icon: Sparkles },
-  beach: { label: "Beach", icon: Waves },
-  trek: { label: "Trek", icon: Mountain },
-  waterfall: { label: "Waterfall", icon: Trees },
-  cafe: { label: "Cafes", icon: Coffee },
-  restaurant: { label: "Restaurants", icon: UtensilsCrossed },
-  bar: { label: "Bars", icon: Wine },
-  lounge: { label: "Lounges", icon: Wine },
-  nightlife: { label: "Nightlife", icon: PartyPopper },
-  hangout: { label: "Hangouts", icon: Camera },
-  nature: { label: "Nature", icon: Trees },
-};
+import { isOpenNow } from "@/lib/openingHours";
+import { ArrowLeft, Check, Sparkles, Star, Filter, X, Clock } from "lucide-react";
 
 export default function Recommendations() {
   const navigate = useNavigate();
@@ -33,7 +21,8 @@ export default function Recommendations() {
   const [results, setResults] = useState<ScoredDestination[]>([]);
   const [prefs, setPrefs] = useState<UserPreferences | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeCat, setActiveCat] = useState<string>("all");
+  const [activeVibes, setActiveVibes] = useState<string[]>([]);
+  const [openNowOnly, setOpenNowOnly] = useState(false);
   const [chatHistory, setChatHistory] = useState<{ role: string; content: string }[]>([]);
 
   useEffect(() => {
@@ -79,10 +68,28 @@ export default function Recommendations() {
     );
   }
 
-  const categoriesPresent = Array.from(new Set(results.map((r) => r.category)));
-  const filtered = activeCat === "all" ? results : results.filter((r) => r.category === activeCat);
+  const vibesPresent = Array.from(new Set(results.flatMap((r) => r.moods))).sort();
+
+  // AND logic; if <3 results, fallback to OR
+  let filterMode: "and" | "or" | "none" = "none";
+  let filtered = results;
+  if (activeVibes.length > 0) {
+    const andMatch = results.filter((r) => activeVibes.every((v) => r.moods.includes(v)));
+    if (andMatch.length >= 3) {
+      filtered = andMatch;
+      filterMode = "and";
+    } else {
+      filtered = results.filter((r) => activeVibes.some((v) => r.moods.includes(v)));
+      filterMode = "or";
+    }
+  }
+  if (openNowOnly) filtered = filtered.filter((r) => isOpenNow(r.opening_hours));
+
   const top = filtered.slice(0, 2);
   const others = filtered.slice(2, 8);
+
+  const toggleVibe = (v: string) =>
+    setActiveVibes((cur) => (cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]));
 
   return (
     <div className="min-h-screen bg-background">
@@ -113,32 +120,51 @@ export default function Recommendations() {
           <p className="text-sm text-muted-foreground">Spots from our local database, ranked for your vibe.</p>
         </div>
 
-        {/* Sticky category filter bar */}
-        <div className="sticky top-14 z-30 -mx-4 border-y border-border/50 glass px-4 py-2 md:rounded-2xl md:border md:mx-0">
+        {/* Sticky vibe filter bar */}
+        <div className="sticky top-14 z-30 -mx-4 space-y-2 border-y border-border/50 glass px-4 py-2.5 md:mx-0 md:rounded-2xl md:border">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 shrink-0 text-muted-foreground" />
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-              {(["all", ...categoriesPresent]).map((cat) => {
-                const meta = CATEGORY_META[cat] || { label: cat, icon: Sparkles };
-                const Icon = meta.icon;
-                const active = activeCat === cat;
+            <div className="flex flex-1 gap-2 overflow-x-auto scrollbar-hide">
+              {vibesPresent.map((vibe) => {
+                const active = activeVibes.includes(vibe);
                 return (
                   <button
-                    key={cat}
-                    onClick={() => setActiveCat(cat)}
-                    className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium capitalize transition-smooth ${
+                    key={vibe}
+                    onClick={() => toggleVibe(vibe)}
+                    className={`flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-semibold capitalize transition-smooth ${
                       active
-                        ? "bg-gradient-hero text-primary-foreground shadow-glow"
-                        : "bg-muted text-muted-foreground hover:bg-muted/70"
+                        ? "border-transparent bg-gradient-hero text-primary-foreground shadow-glow"
+                        : "border-border bg-background/60 text-foreground hover:border-primary/40 hover:bg-muted"
                     }`}
                   >
-                    <Icon className="h-3.5 w-3.5" />
-                    {meta.label}
+                    {active && <Check className="h-3 w-3" />}
+                    {vibe}
                   </button>
                 );
               })}
             </div>
+            <label className="ml-2 flex shrink-0 items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1 text-xs font-semibold">
+              <Clock className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+              Open now
+              <Switch checked={openNowOnly} onCheckedChange={setOpenNowOnly} />
+            </label>
           </div>
+          {(activeVibes.length > 0 || openNowOnly) && (
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <span>{filtered.length} match{filtered.length === 1 ? "" : "es"}</span>
+              {filterMode === "or" && activeVibes.length > 1 && (
+                <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-400">
+                  Showing places matching <strong>any</strong> selected vibe (too few exact matches)
+                </span>
+              )}
+              <button
+                onClick={() => { setActiveVibes([]); setOpenNowOnly(false); }}
+                className="ml-auto inline-flex items-center gap-1 rounded-full px-2 py-0.5 hover:bg-muted"
+              >
+                <X className="h-3 w-3" /> Clear
+              </button>
+            </div>
+          )}
         </div>
 
         {top.length === 0 ? (

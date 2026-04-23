@@ -32,6 +32,7 @@ export type Database = {
           longitude: number | null
           moods: string[]
           name: string
+          opening_hours: Json | null
           rating: number
           stay_cost: number
           transport_cost: number
@@ -55,6 +56,7 @@ export type Database = {
           longitude?: number | null
           moods?: string[]
           name: string
+          opening_hours?: Json | null
           rating?: number
           stay_cost?: number
           transport_cost?: number
@@ -78,6 +80,7 @@ export type Database = {
           longitude?: number | null
           moods?: string[]
           name?: string
+          opening_hours?: Json | null
           rating?: number
           stay_cost?: number
           transport_cost?: number

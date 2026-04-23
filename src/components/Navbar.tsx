@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Camera, Compass, GraduationCap, Heart, History, ListChecks, LogOut, Moon, Settings, Sparkles, Sun, User, Wallet } from "lucide-react";
+import { Camera, CalendarHeart, Compass, GraduationCap, Heart, History, ListChecks, LogOut, Moon, Settings, Sparkles, Sun, User, Wallet } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +28,9 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-2">
+          <Link to="/events" className="hidden md:inline-flex">
+            <Button variant="ghost" size="sm"><CalendarHeart className="mr-1.5 h-4 w-4" /> Events</Button>
+          </Link>
           <Link to="/trip-planner" className="hidden lg:inline-flex">
             <Button variant="ghost" size="sm"><Sparkles className="mr-1.5 h-4 w-4" /> Planner</Button>
           </Link>
@@ -57,6 +60,9 @@ export default function Navbar() {
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/trip-tracker")} className="lg:hidden">
                   <Wallet className="mr-2 h-4 w-4" /> Trip Tracker
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/events")} className="md:hidden">
+                  <CalendarHeart className="mr-2 h-4 w-4" /> Events
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/fresher-guide")}>
                   <GraduationCap className="mr-2 h-4 w-4" /> Fresher Guide

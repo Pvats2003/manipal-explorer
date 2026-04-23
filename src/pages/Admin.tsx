@@ -9,8 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Destination } from "@/lib/types";
-import { Trash2, Plus, ShieldAlert } from "lucide-react";
+import type { CommunityEvent } from "@/lib/events";
+import { categoryMeta } from "@/lib/events";
+import { Trash2, Plus, ShieldAlert, EyeOff, Eye, CalendarHeart } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import Footer from "@/components/Footer";
 
 const empty = {
   name: "", description: "", category: "beach", moods: "chill", travel_types: "solo,friends,partner",
@@ -23,11 +27,15 @@ export default function Admin() {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const [items, setItems] = useState<Destination[]>([]);
+  const [events, setEvents] = useState<CommunityEvent[]>([]);
   const [form, setForm] = useState(empty);
 
   const load = () => {
     supabase.from("destinations").select("*").order("name").then(({ data }) => {
       setItems((data as Destination[]) || []);
+    });
+    supabase.from("events").select("*").order("created_at", { ascending: false }).then(({ data }) => {
+      setEvents((data as CommunityEvent[]) || []);
     });
   };
 
@@ -83,6 +91,20 @@ export default function Admin() {
     load();
   };
 
+  const toggleHide = async (ev: CommunityEvent) => {
+    const { error } = await supabase.from("events").update({ hidden: !ev.hidden }).eq("id", ev.id);
+    if (error) { toast.error("Failed"); return; }
+    toast.success(ev.hidden ? "Event restored" : "Event hidden");
+    load();
+  };
+
+  const removeEvent = async (id: string) => {
+    if (!confirm("Delete this event permanently?")) return;
+    await supabase.from("events").delete().eq("id", id);
+    toast.success("Event deleted");
+    load();
+  };
+
   const set = (k: string, v: any) => setForm((f) => ({ ...f, [k]: v }));
 
   return (
@@ -127,7 +149,42 @@ export default function Admin() {
             </Card>
           ))}
         </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <CalendarHeart className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-bold">Community events ({events.length})</h2>
+          </div>
+          {events.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No events yet.</p>
+          ) : events.map((ev) => {
+            const cat = categoryMeta(ev.category);
+            return (
+              <Card key={ev.id} className={`flex flex-wrap items-center justify-between gap-3 p-4 ${ev.hidden ? "opacity-60" : ""}`}>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span>{cat.emoji}</span>
+                    <div className="font-semibold truncate">{ev.title}</div>
+                    {ev.hidden && <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">Hidden</span>}
+                  </div>
+                  <div className="text-xs text-muted-foreground truncate">
+                    {format(new Date(ev.starts_at), "d MMM, h:mm a")} · {ev.location}
+                  </div>
+                </div>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="icon" onClick={() => toggleHide(ev)} title={ev.hidden ? "Restore" : "Hide"}>
+                    {ev.hidden ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => removeEvent(ev.id)}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
       </div>
+      <Footer />
     </div>
   );
 }

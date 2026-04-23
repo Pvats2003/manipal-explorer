@@ -11,10 +11,29 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { Destination } from "@/lib/types";
 import type { CommunityEvent } from "@/lib/events";
 import { categoryMeta } from "@/lib/events";
-import { Trash2, Plus, ShieldAlert, EyeOff, Eye, CalendarHeart } from "lucide-react";
+import { Trash2, Plus, ShieldAlert, EyeOff, Eye, CalendarHeart, MapPin, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import Footer from "@/components/Footer";
+import { mapCategoryToken, costToBudgetTier, costToFoodCost } from "@/lib/submitOptions";
+
+interface PlaceSubmission {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  maps_link: string | null;
+  vibes: string[];
+  cost_range: string;
+  best_times: string[];
+  opening_hours: string | null;
+  pro_tip: string | null;
+  image_url: string | null;
+  submitter_batch: number | null;
+  status: string;
+  submitted_at: string;
+  submitted_by: string | null;
+}
 
 const empty = {
   name: "", description: "", category: "beach", moods: "chill", travel_types: "solo,friends,partner",
@@ -28,6 +47,7 @@ export default function Admin() {
   const navigate = useNavigate();
   const [items, setItems] = useState<Destination[]>([]);
   const [events, setEvents] = useState<CommunityEvent[]>([]);
+  const [submissions, setSubmissions] = useState<PlaceSubmission[]>([]);
   const [form, setForm] = useState(empty);
 
   const load = () => {
@@ -36,6 +56,9 @@ export default function Admin() {
     });
     supabase.from("events").select("*").order("created_at", { ascending: false }).then(({ data }) => {
       setEvents((data as CommunityEvent[]) || []);
+    });
+    supabase.from("place_submissions").select("*").eq("status", "pending").order("submitted_at", { ascending: false }).then(({ data }) => {
+      setSubmissions((data as PlaceSubmission[]) || []);
     });
   };
 
@@ -102,6 +125,48 @@ export default function Admin() {
     if (!confirm("Delete this event permanently?")) return;
     await supabase.from("events").delete().eq("id", id);
     toast.success("Event deleted");
+    load();
+  };
+
+  const approveSubmission = async (s: PlaceSubmission) => {
+    const { error: insErr } = await supabase.from("destinations").insert([{
+      name: s.name,
+      description: s.description,
+      category: mapCategoryToken(s.category),
+      moods: s.vibes,
+      travel_types: ["solo", "friends", "partner"],
+      distance_km: 5,
+      duration_type: "day",
+      budget_tier: costToBudgetTier(s.cost_range),
+      transport_cost: 0,
+      food_cost: costToFoodCost(s.cost_range),
+      stay_cost: 0,
+      entry_fee: 0,
+      rating: 8,
+      activities: [],
+      image_url: s.image_url,
+      best_time: s.best_times.join(", ") || null,
+    }]);
+    if (insErr) { toast.error(insErr.message); return; }
+    const { error: updErr } = await supabase.from("place_submissions")
+      .update({ status: "approved", reviewed_at: new Date().toISOString() }).eq("id", s.id);
+    if (updErr) { toast.error(updErr.message); return; }
+    if (s.submitted_by) {
+      // +50 explorer points
+      const { data: prof } = await supabase.from("profiles").select("explorer_score").eq("user_id", s.submitted_by).maybeSingle();
+      const score = (prof?.explorer_score ?? 0) + 50;
+      await supabase.from("profiles").update({ explorer_score: score }).eq("user_id", s.submitted_by);
+    }
+    toast.success("Approved & added to destinations");
+    load();
+  };
+
+  const rejectSubmission = async (id: string) => {
+    if (!confirm("Reject this submission?")) return;
+    const { error } = await supabase.from("place_submissions")
+      .update({ status: "rejected", reviewed_at: new Date().toISOString() }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Rejected");
     load();
   };
 

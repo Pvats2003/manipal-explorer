@@ -8,18 +8,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { BUCKET_ITEMS, getCompleted } from "@/lib/bucketList";
+import { BADGES, EVENT_LABEL, type ExplorerEventType } from "@/lib/explorer";
+import AnimatedNumber from "@/components/AnimatedNumber";
+import { relativeTime } from "@/lib/checkins";
 import { LogOut, Pencil, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const BADGES = [
-  { id: "explorer", emoji: "🌱", name: "Explorer", desc: "First check-in" },
-  { id: "adventurer", emoji: "🗺️", name: "Adventurer", desc: "10 check-ins" },
-  { id: "photographer", emoji: "📸", name: "Photographer", desc: "5 photos uploaded" },
-  { id: "sage", emoji: "💬", name: "Sage", desc: "10 helpful tips" },
-  { id: "beach", emoji: "🌊", name: "Beach Bum", desc: "5 beach check-ins" },
-  { id: "owl", emoji: "🦉", name: "Night Owl", desc: "5 late-night check-ins" },
-  { id: "legend", emoji: "🏆", name: "Wanderlust Legend", desc: "100% bucket list" },
-];
 
 function LoggedOutState() {
   const navigate = useNavigate();
@@ -76,6 +69,8 @@ export default function Profile() {
   const [bucketDone, setBucketDone] = useState(0);
   const [totalExplorers, setTotalExplorers] = useState<number | null>(null);
   const [rank, setRank] = useState<number | null>(null);
+  const [earnedBadges, setEarnedBadges] = useState<Set<string>>(new Set());
+  const [activity, setActivity] = useState<{ id: string; event_type: string; points_awarded: number; created_at: string }[]>([]);
 
   useEffect(() => {
     setBucketDone(Object.keys(getCompleted()).length);
@@ -94,6 +89,14 @@ export default function Profile() {
       setSavedCount(c2 ?? 0);
       setTotalExplorers(total ?? 0);
       setRank((ahead ?? 0) + 1);
+
+      const [{ data: badges }, { data: events }] = await Promise.all([
+        supabase.from("user_badges").select("badge_id").eq("user_id", user.id),
+        supabase.from("explorer_events").select("id, event_type, points_awarded, created_at")
+          .eq("user_id", user.id).order("created_at", { ascending: false }).limit(10),
+      ]);
+      setEarnedBadges(new Set((badges || []).map((b: any) => b.badge_id)));
+      setActivity(events || []);
     })();
   }, [user, profile?.explorer_score]);
 
@@ -135,7 +138,9 @@ export default function Profile() {
           </div>
           <h1 className="font-display text-3xl font-bold">{profile.display_name || "Explorer"}</h1>
           {profile.batch_year && <div className="text-sm text-muted-foreground">Batch of {profile.batch_year}</div>}
-          <div className="mt-3 font-display text-5xl font-bold text-primary">{profile.explorer_score}</div>
+          <div className="mt-3 font-display text-5xl font-bold text-primary">
+            <AnimatedNumber value={profile.explorer_score} />
+          </div>
           <div className="text-xs uppercase tracking-wide text-muted-foreground">Explorer score</div>
           {rank && totalExplorers && (
             <div className="mt-2 text-sm text-muted-foreground">
@@ -176,14 +181,16 @@ export default function Profile() {
                 title={`${b.name} — ${b.desc}`}
                 className={cn(
                   "flex aspect-square flex-col items-center justify-center rounded-full border text-2xl",
-                  "bg-muted/60 text-muted-foreground border-border",
+                  earnedBadges.has(b.id)
+                    ? "bg-secondary/40 border-secondary"
+                    : "bg-muted/60 text-muted-foreground border-border",
                 )}
               >
-                <span className="grayscale opacity-50">{b.emoji}</span>
+                <span className={earnedBadges.has(b.id) ? "" : "grayscale opacity-50"}>{b.emoji}</span>
               </div>
             ))}
           </div>
-          <div className="mt-3 text-xs text-muted-foreground">0/{BADGES.length} badges earned · coming soon</div>
+          <div className="mt-3 text-xs text-muted-foreground">{earnedBadges.size}/{BADGES.length} badges earned</div>
         </Card>
 
         {/* Activity */}
@@ -191,10 +198,28 @@ export default function Profile() {
           <div className="section-eyebrow mb-3">
             <h2 className="font-display text-xl font-bold">Recent activity</h2>
           </div>
-          <div className="flex flex-col items-center gap-2 py-6 text-center text-sm text-muted-foreground">
-            <Sparkles className="h-6 w-6 text-secondary" />
-            Your activity feed will appear here once we roll out the points engine.
-          </div>
+          {activity.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 py-6 text-center text-sm text-muted-foreground">
+              <Sparkles className="h-6 w-6 text-secondary" />
+              No activity yet — check in somewhere to get started!
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {activity.map((e) => {
+                const meta = EVENT_LABEL[e.event_type as ExplorerEventType] || { icon: "✨", verb: e.event_type };
+                return (
+                  <li key={e.id} className="flex items-center gap-3 rounded-md border border-border/60 px-3 py-2 text-sm">
+                    <div className="text-lg">{meta.icon}</div>
+                    <div className="flex-1">
+                      <div className="font-medium">{meta.verb}</div>
+                      <div className="text-[11px] text-muted-foreground">{relativeTime(e.created_at)}</div>
+                    </div>
+                    <div className="font-display font-bold text-primary">+{e.points_awarded}</div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </Card>
 
         {/* Actions */}

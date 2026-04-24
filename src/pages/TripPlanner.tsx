@@ -11,12 +11,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sparkles, Loader2, Calendar, MapPin, Wallet, Clock, Bus, Lightbulb, Backpack } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { logExplorerEvent } from "@/lib/explorer";
+import { Bookmark } from "lucide-react";
 
 interface Block { time: string; activity: string; location: string; details: string; transport?: string; cost_inr: number; }
 interface Day { day_number: number; theme: string; blocks: Block[]; }
 interface Itinerary { title: string; summary: string; total_estimated_cost_inr: number; packing_tips: string[]; days: Day[]; }
 
 export default function TripPlanner() {
+  const { user } = useAuth();
   const [duration, setDuration] = useState("1");
   const [budget, setBudget] = useState("1500");
   const [vibe, setVibe] = useState("chill beach + sunset + good food");
@@ -25,6 +29,26 @@ export default function TripPlanner() {
   const [extras, setExtras] = useState("");
   const [loading, setLoading] = useState(false);
   const [itin, setItin] = useState<Itinerary | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  const saveItinerary = () => {
+    if (!user) {
+      toast.error("Login to save itineraries");
+      return;
+    }
+    if (!itin || saved) return;
+    try {
+      const key = `karavali_saved_itineraries_${user.id}`;
+      const cur = JSON.parse(localStorage.getItem(key) || "[]");
+      cur.unshift({ id: Date.now(), itinerary: itin, savedAt: Date.now() });
+      localStorage.setItem(key, JSON.stringify(cur.slice(0, 20)));
+      setSaved(true);
+      toast.success("Itinerary saved! 🗺️");
+      logExplorerEvent({ userId: user.id, type: "itinerary_saved" });
+    } catch {
+      toast.error("Couldn't save — try again");
+    }
+  };
 
   const generate = async () => {
     setLoading(true); setItin(null);
@@ -99,6 +123,15 @@ export default function TripPlanner() {
                 <Badge variant="secondary" className="gap-1"><Wallet className="h-3 w-3" /> ~₹{itin.total_estimated_cost_inr}/person</Badge>
                 <Badge variant="secondary" className="gap-1"><Calendar className="h-3 w-3" /> {itin.days.length} day{itin.days.length > 1 ? "s" : ""}</Badge>
               </div>
+              <Button
+                onClick={saveItinerary}
+                disabled={saved}
+                size="sm"
+                className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                <Bookmark className="mr-2 h-4 w-4" />
+                {saved ? "Saved" : "Save itinerary (+5 pts)"}
+              </Button>
               {itin.packing_tips?.length > 0 && (
                 <div className="mt-4 rounded-xl bg-primary/5 p-3 text-sm">
                   <div className="mb-1.5 flex items-center gap-1.5 font-semibold"><Backpack className="h-4 w-4 text-primary" /> Pack these</div>

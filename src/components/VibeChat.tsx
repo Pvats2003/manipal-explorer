@@ -43,8 +43,13 @@ export default function VibeChat({ onComplete }: Props) {
   // Pre-fill from saved taste profile
   useEffect(() => {
     if (!user) return;
-    supabase.from("profiles").select("taste_profile").eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => {
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("taste_profile")
+          .eq("user_id", user.id)
+          .maybeSingle();
         const tp: any = data?.taste_profile;
         if (!tp?.moods?.length) return;
         setMessages((prev) => [
@@ -54,10 +59,10 @@ export default function VibeChat({ onComplete }: Props) {
             content: `I remember you like **${tp.moods.join(", ")}** vibes. Same again, or something different today?`,
           },
         ]);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Error loading taste profile:", err);
-      });
+      }
+    })();
   }, [user]);
 
   const send = async (text: string) => {

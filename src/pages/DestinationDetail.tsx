@@ -119,7 +119,7 @@ export default function DestinationDetail() {
         </div>
 
         <Card className="bg-gradient-card p-5 shadow-card">
-          <CheckInButton placeId={dest.id} />
+          <CheckInButton placeId={dest.id} placeCategory={dest.category} />
         </Card>
 
         <div className="grid gap-6 md:grid-cols-3">

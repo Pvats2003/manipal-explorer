@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { checkIn, getCheckinCount, hasCheckedIn } from "@/lib/checkins";
 import { supabase } from "@/integrations/supabase/client";
+import { logExplorerEvent } from "@/lib/explorer";
 import { Check, MapPin, Loader2 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { toast } from "sonner";
 
-export default function CheckInButton({ placeId }: { placeId: string }) {
+export default function CheckInButton({ placeId, placeCategory }: { placeId: string; placeCategory?: string }) {
   const { user } = useAuth();
   const [count, setCount] = useState<number>(0);
   const [done, setDone] = useState(false);
@@ -59,6 +60,17 @@ export default function CheckInButton({ placeId }: { placeId: string }) {
       await checkIn(placeId, user?.id ?? null);
       fireConfetti();
       toast.success("You've been here! 🎉");
+      if (user?.id) {
+        logExplorerEvent({
+          userId: user.id,
+          type: "checkin",
+          referenceId: placeId,
+          context: {
+            placeCategory,
+            checkinHourLocal: new Date().getHours(),
+          },
+        });
+      }
     } catch {
       setDone(false);
       setCount((c) => Math.max(0, c - 1));

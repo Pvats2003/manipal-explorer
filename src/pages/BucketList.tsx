@@ -9,6 +9,7 @@ import { Check, CloudOff, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { fetchCloudBucket, toggleCloudBucket } from "@/lib/cloudSync";
+import { logExplorerEvent } from "@/lib/explorer";
 
 const CATEGORIES: BucketCategory[] = ["Food & Chai", "Nature & Outdoors", "Campus Life", "Day Trips", "Hidden Gems"];
 
@@ -45,6 +46,10 @@ export default function BucketList() {
       setDone(next);
       try { await toggleCloudBucket(user.id, id, wasDone); }
       catch { toast.error("Couldn't sync — try again"); setDone(done); }
+      // Award points only when newly completed
+      if (!wasDone) {
+        logExplorerEvent({ userId: user.id, type: "bucket_complete" });
+      }
     } else {
       const next = toggleCompleted(id);
       setDone(next);

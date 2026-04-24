@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Bell } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 type Item = { id: string; title: string };
 const IN_DEV: Item[] = [
@@ -36,9 +37,14 @@ function NotifyCard({ item, badge }: { item: Item; badge: React.ReactNode }) {
     try { return !!JSON.parse(localStorage.getItem(WAITLIST_KEY) || "{}")[item.id]; } catch { return false; }
   });
 
-  const submit = () => {
+  const submit = async () => {
     if (!email.includes("@")) {
       toast.error("Enter a valid email");
+      return;
+    }
+    const { error } = await supabase.from("waitlist").insert({ email, feature_id: item.id });
+    if (error && error.code !== "23505") {
+      toast.error("Couldn't sign you up — try again");
       return;
     }
     try {

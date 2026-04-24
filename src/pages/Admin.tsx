@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import Footer from "@/components/Footer";
 import { mapCategoryToken, costToBudgetTier, costToFoodCost } from "@/lib/submitOptions";
+import { logExplorerEvent } from "@/lib/explorer";
 
 interface PlaceSubmission {
   id: string;
@@ -152,10 +153,17 @@ export default function Admin() {
       .update({ status: "approved", reviewed_at: new Date().toISOString() }).eq("id", s.id);
     if (updErr) { toast.error(updErr.message); return; }
     if (s.submitted_by) {
-      // +50 explorer points
-      const { data: prof } = await supabase.from("profiles").select("explorer_score").eq("user_id", s.submitted_by).maybeSingle();
-      const score = (prof?.explorer_score ?? 0) + 50;
-      await supabase.from("profiles").update({ explorer_score: score }).eq("user_id", s.submitted_by);
+      // +50 via explorer_events trigger (also notifies submitter)
+      await logExplorerEvent({
+        userId: s.submitted_by,
+        type: "submission_approved",
+        referenceId: s.id,
+      });
+      await supabase.from("notifications").insert({
+        user_id: s.submitted_by,
+        type: "approval",
+        message: `Your place "${s.name}" was approved! +50 pts 🎉`,
+      });
     }
     toast.success("Approved & added to destinations");
     load();

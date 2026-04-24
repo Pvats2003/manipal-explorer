@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import LoginModal from "./LoginModal";
+import NotificationsBell from "./NotificationsBell";
 
 const NAV_LINKS = [
   { to: "/recommendations", label: "Explore" },
@@ -61,6 +62,8 @@ export default function Navbar() {
               <CheckCircle2 className="h-3 w-3" /> Sync enabled
             </span>
           )}
+
+          <NotificationsBell />
 
           <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle theme">
             {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}

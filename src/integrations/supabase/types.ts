@@ -225,6 +225,33 @@ export type Database = {
         }
         Relationships: []
       }
+      explorer_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          points_awarded: number
+          reference_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          points_awarded?: number
+          reference_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          points_awarded?: number
+          reference_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       likes: {
         Row: {
           created_at: string
@@ -253,6 +280,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       place_submissions: {
         Row: {
@@ -459,6 +513,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_badges: {
+        Row: {
+          awarded_at: string
+          badge_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          awarded_at?: string
+          badge_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          awarded_at?: string
+          badge_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -477,6 +552,27 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          feature_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          feature_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          feature_id?: string
+          id?: string
         }
         Relationships: []
       }

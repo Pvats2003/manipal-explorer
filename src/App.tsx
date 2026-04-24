@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import ProfileSetupModal from "@/components/ProfileSetupModal";
+import PointsListener from "@/components/PointsListener";
 import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
 import Recommendations from "./pages/Recommendations.tsx";
@@ -45,6 +46,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <ProfileSetupModal />
+            <PointsListener />
             <RouteFade>
               <Routes>
               <Route path="/" element={<Index />} />

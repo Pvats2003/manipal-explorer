@@ -16,12 +16,11 @@ import LoginModal from "./LoginModal";
 
 const NAV_LINKS = [
   { to: "/recommendations", label: "Explore" },
-  { to: "/events", label: "Events" },
-  { to: "/submit", label: "Submit" },
   { to: "/trip-planner", label: "Planner" },
   { to: "/bucket-list", label: "Bucket List" },
-  { to: "/trip-tracker", label: "Tracker" },
   { to: "/fresher-guide", label: "Fresher Guide" },
+  { to: "/leaderboard", label: "Leaderboard" },
+  { to: "/profile", label: "My Profile" },
 ];
 
 export default function Navbar() {
@@ -45,7 +44,7 @@ export default function Navbar() {
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1">
-          {NAV_LINKS.slice(0, 5).map((l) => (
+          {NAV_LINKS.map((l) => (
             <Link
               key={l.to}
               to={l.to}

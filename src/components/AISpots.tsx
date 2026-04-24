@@ -157,7 +157,7 @@ export default function AISpots({ prefs, chatHistory }: Props) {
                       <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{s.area}</span>
                       <span>·</span>
                       <span>{s.distance_km_from_manipal} km</span>
-                      {s.travel_time_minutes && <><span>·</span><span>~{s.travel_time_minutes} min</span></>
+                      {s.travel_time_minutes && <><span>·</span><span>~{s.travel_time_minutes} min</span></>}
                     </div>
                   </div>
                   <div className="flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">

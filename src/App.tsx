@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import ProfileSetupModal from "@/components/ProfileSetupModal";
 import PointsListener from "@/components/PointsListener";
+import MobileTabBar from "@/components/MobileTabBar";
 import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
 import Recommendations from "./pages/Recommendations.tsx";
@@ -75,6 +76,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
               </Routes>
             </RouteFade>
+            <MobileTabBar />
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>

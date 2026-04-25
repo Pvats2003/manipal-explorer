@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { BUCKET_ITEMS, getCompleted } from "@/lib/bucketList";
+import { fetchCloudBucket } from "@/lib/cloudSync";
 import { BADGES, EVENT_LABEL, type ExplorerEventType } from "@/lib/explorer";
 import AnimatedNumber from "@/components/AnimatedNumber";
 import { relativeTime } from "@/lib/checkins";
@@ -73,8 +74,12 @@ export default function Profile() {
   const [activity, setActivity] = useState<{ id: string; event_type: string; points_awarded: number; created_at: string }[]>([]);
 
   useEffect(() => {
-    setBucketDone(Object.keys(getCompleted()).length);
-  }, []);
+    if (user) {
+      fetchCloudBucket(user.id).then((d) => setBucketDone(Object.keys(d).length));
+    } else {
+      setBucketDone(Object.keys(getCompleted()).length);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;

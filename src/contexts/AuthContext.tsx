@@ -31,13 +31,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [profile, setProfile] = useState<ExplorerProfile | null>(null);
 
-  const loadProfile = async (uid: string) => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("user_id, display_name, batch_year, profile_emoji, explorer_score, onboarded, avatar_url")
-      .eq("user_id", uid)
-      .maybeSingle();
-    if (data) setProfile(data as ExplorerProfile);
+  const loadProfile = async (uid: string): Promise<void> => {
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, batch_year, profile_emoji, explorer_score, onboarded, avatar_url")
+        .eq("user_id", uid)
+        .maybeSingle();
+      if (data) setProfile(data as ExplorerProfile);
+    } catch (error) {
+      console.error("Failed to load profile:", error);
+    }
+  };
+
+  const loadAdminStatus = async (uid: string): Promise<void> => {
+    try {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", uid)
+        .eq("role", "admin")
+        .maybeSingle();
+      setIsAdmin(!!data);
+    } catch (error) {
+      console.error("Failed to load admin status:", error);
+      setIsAdmin(false);
+    }
   };
 
   useEffect(() => {
@@ -45,38 +64,61 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(sess);
       setUser(sess?.user ?? null);
       if (sess?.user) {
-        setTimeout(async () => {
-          const { data } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", sess.user.id)
-            .eq("role", "admin")
-            .maybeSingle();
-          setIsAdmin(!!data);
-          loadProfile(sess.user.id);
-        }, 0);
+        // Load admin status and profile concurrently
+        Promise.all([
+          loadAdminStatus(sess.user.id),
+          loadProfile(sess.user.id),
+        ]).catch((error) => {
+          console.error("Failed to load user data:", error);
+        });
       } else {
         setIsAdmin(false);
         setProfile(null);
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) loadProfile(session.user.id);
+    // Get current session on mount
+    supabase.auth.getSession().then(({ data: { session: sess } }) => {
+      setSession(sess);
+      setUser(sess?.user ?? null);
+      if (sess?.user) {
+        Promise.all([
+          loadAdminStatus(sess.user.id),
+          loadProfile(sess.user.id),
+        ]).catch((error) => {
+          console.error("Failed to load user data:", error);
+        }).finally(() => {
+          setLoading(false);
+        });
+      } else {
+        setLoading(false);
+      }
+    }).catch((error) => {
+      console.error("Failed to get session:", error);
       setLoading(false);
     });
 
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
+  const signOut = async (): Promise<void> => {
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Failed to sign out:", error);
+      throw error;
+    }
   };
 
-  const refreshProfile = async () => {
-    if (user) await loadProfile(user.id);
+  const refreshProfile = async (): Promise<void> => {
+    if (user) {
+      try {
+        await loadProfile(user.id);
+      } catch (error) {
+        console.error("Failed to refresh profile:", error);
+        throw error;
+      }
+    }
   };
 
   return (
@@ -86,7 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useAuth() {
+export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;

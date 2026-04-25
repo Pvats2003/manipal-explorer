@@ -17,6 +17,7 @@ import NotificationsBell from "./NotificationsBell";
 
 const NAV_LINKS = [
   { to: "/recommendations", label: "Explore" },
+  { to: "/experiences", label: "Experiences" },
   { to: "/trip-planner", label: "Planner" },
   { to: "/bucket-list", label: "Bucket List" },
   { to: "/fresher-guide", label: "Fresher Guide" },

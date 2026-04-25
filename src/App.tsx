@@ -24,6 +24,9 @@ import SubmitPlace from "./pages/SubmitPlace.tsx";
 import Leaderboard from "./pages/Leaderboard.tsx";
 import Profile from "./pages/Profile.tsx";
 import ComingSoon from "./pages/ComingSoon.tsx";
+import Experiences from "./pages/Experiences.tsx";
+import ExperienceDetail from "./pages/ExperienceDetail.tsx";
+import ExperienceGroup from "./pages/ExperienceGroup.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -66,6 +69,9 @@ const App = () => (
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/coming-soon" element={<ComingSoon />} />
+              <Route path="/experiences" element={<Experiences />} />
+              <Route path="/experiences/:id" element={<ExperienceDetail />} />
+              <Route path="/groups/:id" element={<ExperienceGroup />} />
               <Route path="*" element={<NotFound />} />
               </Routes>
             </RouteFade>

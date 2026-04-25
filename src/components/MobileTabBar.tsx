@@ -1,12 +1,11 @@
 import { NavLink } from "react-router-dom";
-import { Map, Sparkles, ListChecks, Trophy, User } from "lucide-react";
+import { Home, Map, Sparkles, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TABS = [
+  { to: "/", label: "Home", Icon: Home, end: true },
   { to: "/recommendations", label: "Explore", Icon: Map },
-  { to: "/trip-planner", label: "Planner", Icon: Sparkles },
-  { to: "/bucket-list", label: "Bucket", Icon: ListChecks },
-  { to: "/leaderboard", label: "Leaders", Icon: Trophy },
+  { to: "/experiences", label: "Experiences", Icon: Sparkles },
   { to: "/profile", label: "Profile", Icon: User },
 ];
 
@@ -17,10 +16,11 @@ export default function MobileTabBar() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       aria-label="Mobile navigation"
     >
-      {TABS.map(({ to, label, Icon }) => (
+      {TABS.map(({ to, label, Icon, end }) => (
         <NavLink
           key={to}
           to={to}
+          end={end}
           className={({ isActive }) =>
             cn(
               "flex flex-1 flex-col items-center justify-center gap-0.5 transition-colors",

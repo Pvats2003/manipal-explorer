@@ -225,6 +225,153 @@ export type Database = {
         }
         Relationships: []
       }
+      expenses: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          group_id: string
+          id: string
+          paid_by: string
+          split_among: string[]
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          description: string
+          group_id: string
+          id?: string
+          paid_by: string
+          split_among?: string[]
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          group_id?: string
+          id?: string
+          paid_by?: string
+          split_among?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "experience_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      experience_attendees: {
+        Row: {
+          created_at: string
+          experience_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          experience_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          experience_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experience_attendees_experience_id_fkey"
+            columns: ["experience_id"]
+            isOneToOne: false
+            referencedRelation: "experiences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      experience_groups: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string
+          experience_id: string
+          id: string
+          max_members: number
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string
+          experience_id: string
+          id?: string
+          max_members?: number
+          name: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string
+          experience_id?: string
+          id?: string
+          max_members?: number
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experience_groups_experience_id_fkey"
+            columns: ["experience_id"]
+            isOneToOne: false
+            referencedRelation: "experiences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      experiences: {
+        Row: {
+          budget_estimate: number
+          created_at: string
+          created_by: string
+          description: string
+          destination_id: string | null
+          id: string
+          image_url: string | null
+          location: string
+          starts_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          budget_estimate?: number
+          created_at?: string
+          created_by: string
+          description?: string
+          destination_id?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string
+          starts_at?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          budget_estimate?: number
+          created_at?: string
+          created_by?: string
+          description?: string
+          destination_id?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string
+          starts_at?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       explorer_events: {
         Row: {
           created_at: string
@@ -251,6 +398,67 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      group_members: {
+        Row: {
+          group_id: string
+          id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "experience_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_messages: {
+        Row: {
+          content: string
+          created_at: string
+          group_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          group_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          group_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_messages_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "experience_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       likes: {
         Row: {
@@ -367,6 +575,106 @@ export type Database = {
           vibes?: string[]
         }
         Relationships: []
+      }
+      poll_options: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          poll_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          poll_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          poll_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_options_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      poll_votes: {
+        Row: {
+          created_at: string
+          id: string
+          option_id: string
+          poll_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          option_id: string
+          poll_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          option_id?: string
+          poll_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_option_id_fkey"
+            columns: ["option_id"]
+            isOneToOne: false
+            referencedRelation: "poll_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      polls: {
+        Row: {
+          created_at: string
+          created_by: string
+          group_id: string
+          id: string
+          question: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          group_id: string
+          id?: string
+          question: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          group_id?: string
+          id?: string
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "polls_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "experience_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -586,6 +894,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_group_member: {
+        Args: { _group_id: string; _user_id: string }
         Returns: boolean
       }
     }

@@ -11,6 +11,7 @@ import type { Destination } from "@/lib/types";
 import { ArrowLeft, Heart, MapPin, Star, Bookmark, ExternalLink, Clock } from "lucide-react";
 import { toast } from "sonner";
 import CheckInButton from "@/components/CheckInButton";
+import PlanningHere from "@/components/experiences/PlanningHere";
 
 export default function DestinationDetail() {
   const { id } = useParams();
@@ -121,6 +122,8 @@ export default function DestinationDetail() {
         <Card className="bg-gradient-card p-5 shadow-card">
           <CheckInButton placeId={dest.id} placeCategory={dest.category} />
         </Card>
+
+        <PlanningHere destinationId={dest.id} />
 
         <div className="grid gap-6 md:grid-cols-3">
           <div className="space-y-6 md:col-span-2">

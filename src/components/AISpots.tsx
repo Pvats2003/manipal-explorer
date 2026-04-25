@@ -75,9 +75,10 @@ export default function AISpots({ prefs, chatHistory }: Props) {
           return;
         }
         setData(res as AIResult);
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (cancelled) return;
-        console.error(e);
+        const errorMessage = e instanceof Error ? e.message : "Unknown error";
+        console.error(errorMessage);
         setError("Couldn't reach Vibe Concierge. Try again.");
       } finally {
         if (!cancelled) setLoading(false);

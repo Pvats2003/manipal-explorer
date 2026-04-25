@@ -16,7 +16,6 @@ import Saved from "./pages/Saved.tsx";
 import History from "./pages/History.tsx";
 import Admin from "./pages/Admin.tsx";
 import BucketList from "./pages/BucketList.tsx";
-import TripTracker from "./pages/TripTracker.tsx";
 import TripPlanner from "./pages/TripPlanner.tsx";
 import FresherGuide from "./pages/FresherGuide.tsx";
 import PhotoWall from "./pages/PhotoWall.tsx";
@@ -61,7 +60,6 @@ const App = () => (
               <Route path="/history" element={<History />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/bucket-list" element={<BucketList />} />
-              <Route path="/trip-tracker" element={<TripTracker />} />
               <Route path="/trip-planner" element={<TripPlanner />} />
               <Route path="/fresher-guide" element={<FresherGuide />} />
               <Route path="/photo-wall" element={<PhotoWall />} />

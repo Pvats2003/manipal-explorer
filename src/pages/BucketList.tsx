@@ -46,17 +46,14 @@ export default function BucketList() {
       setDone(next);
       try { await toggleCloudBucket(user.id, id, wasDone); }
       catch { toast.error("Couldn't sync — try again"); setDone(done); }
-      // Award points only the FIRST time this item is completed.
-      // Check explorer_events ledger to prevent farming via toggle.
+      // Award points only the FIRST time this item is completed (prevent toggle-farming).
       if (!wasDone) {
-        const { count } = await supabase
-          .from("explorer_events")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id)
-          .eq("event_type", "bucket_complete")
-          .eq("reference_id", id);
-        if ((count ?? 0) === 0) {
-          logExplorerEvent({ userId: user.id, type: "bucket_complete", referenceId: id });
+        const awardKey = `karavali_bucket_awarded_${user.id}`;
+        const awarded: string[] = JSON.parse(localStorage.getItem(awardKey) || "[]");
+        if (!awarded.includes(id)) {
+          awarded.push(id);
+          localStorage.setItem(awardKey, JSON.stringify(awarded));
+          logExplorerEvent({ userId: user.id, type: "bucket_complete" });
         }
       }
     } else {

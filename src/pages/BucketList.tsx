@@ -46,9 +46,15 @@ export default function BucketList() {
       setDone(next);
       try { await toggleCloudBucket(user.id, id, wasDone); }
       catch { toast.error("Couldn't sync — try again"); setDone(done); }
-      // Award points only when newly completed
+      // Award points only the FIRST time this item is completed (prevent toggle-farming).
       if (!wasDone) {
-        logExplorerEvent({ userId: user.id, type: "bucket_complete" });
+        const awardKey = `karavali_bucket_awarded_${user.id}`;
+        const awarded: string[] = JSON.parse(localStorage.getItem(awardKey) || "[]");
+        if (!awarded.includes(id)) {
+          awarded.push(id);
+          localStorage.setItem(awardKey, JSON.stringify(awarded));
+          logExplorerEvent({ userId: user.id, type: "bucket_complete" });
+        }
       }
     } else {
       const next = toggleCompleted(id);

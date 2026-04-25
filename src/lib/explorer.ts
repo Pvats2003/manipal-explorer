@@ -142,18 +142,16 @@ async function evaluateBadges(
       if (beachCount >= 5) await awardBadge(userId, "beach");
     }
 
+    // Night Owl badge: track late-night check-ins client-side until we
+    // store hour-of-day on the event. Counts only genuine late check-ins.
     if (context?.checkinHourLocal !== undefined) {
       const h = context.checkinHourLocal;
       const isLate = h >= 22 || h < 4;
-      if (isLate) {
-        const { count: lateCount } = await supabase
-          .from("explorer_events")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", userId)
-          .eq("event_type", "checkin")
-          .or("created_at.gte." + new Date(0).toISOString()); // all events
-        // Note: precise late-night counting would require a stored flag; use approximate via local heuristic
-        if ((lateCount ?? 0) >= 5) await awardBadge(userId, "owl");
+      if (isLate && typeof window !== "undefined") {
+        const key = `karavali_late_checkins_${userId}`;
+        const n = Number(localStorage.getItem(key) || "0") + 1;
+        localStorage.setItem(key, String(n));
+        if (n >= 5) await awardBadge(userId, "owl");
       }
     }
   }

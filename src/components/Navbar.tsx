@@ -16,7 +16,6 @@ import LoginModal from "./LoginModal";
 import NotificationsBell from "./NotificationsBell";
 
 const NAV_LINKS = [
-  { to: "/recommendations", label: "Explore" },
   { to: "/events", label: "Events" },
   { to: "/trip-planner", label: "Planner" },
   { to: "/bucket-list", label: "Bucket List" },
@@ -88,7 +87,6 @@ export default function Navbar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/saved")}><User className="mr-2 h-4 w-4" /> My profile</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/saved")}><Heart className="mr-2 h-4 w-4" /> My saved places</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/bucket-list")}><ListChecks className="mr-2 h-4 w-4" /> Bucket list</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/history")}><History className="mr-2 h-4 w-4" /> Search history</DropdownMenuItem>

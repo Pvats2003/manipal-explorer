@@ -128,30 +128,41 @@ export default function VibeChat({ onComplete }: Props) {
   };
 
   return (
-    <Card className="overflow-hidden border-border/50 bg-gradient-card shadow-card">
+    <Card className="overflow-hidden border-border/40 bg-gradient-card shadow-elevated transition-all duration-500 hover:shadow-glow">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-border/50 bg-background/40 p-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-hero shadow-glow">
+      <div className="flex items-center gap-4 border-b border-border/40 bg-gradient-to-r from-background/60 to-muted/30 p-5 backdrop-blur-sm">
+        <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-hero shadow-glow transition-transform duration-300 hover:scale-105">
           <Sparkles className="h-5 w-5 text-white" />
+          <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background bg-green-500">
+            <span className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-75" />
+          </span>
         </div>
         <div>
-          <div className="font-bold leading-tight">Vibe</div>
+          <div className="font-display font-bold text-lg leading-tight">Vibe</div>
           <div className="text-xs text-muted-foreground">Your AI spot-finder</div>
         </div>
-        <div className="ml-auto flex items-center gap-1.5 rounded-full bg-secondary/15 px-2.5 py-1 text-xs text-secondary">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-secondary" /> online
+        <div className="ml-auto flex items-center gap-2 rounded-full bg-green-500/10 px-3 py-1.5 text-xs font-medium text-green-600 dark:text-green-400 border border-green-500/20">
+          <span className="relative h-2 w-2">
+            <span className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-75" />
+            <span className="relative block h-2 w-2 rounded-full bg-green-500" />
+          </span>
+          online
         </div>
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="h-[420px] space-y-4 overflow-y-auto p-4">
+      <div ref={scrollRef} className="h-[440px] space-y-4 overflow-y-auto p-5 scrollbar-hide">
         {messages.map((m, i) => (
-          <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"} animate-fade-in`}>
+          <div 
+            key={i} 
+            className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+            style={{ animation: `fade-in-up 0.4s cubic-bezier(0.4, 0, 0.2, 1) ${i * 50}ms both` }}
+          >
             <div
-              className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+              className={`max-w-[85%] rounded-2xl px-5 py-3 text-sm leading-relaxed transition-all duration-300 ${
                 m.role === "user"
-                  ? "bg-gradient-hero text-white shadow-glow"
-                  : "bg-muted text-foreground"
+                  ? "bg-gradient-hero text-white shadow-glow hover:shadow-elevated"
+                  : "bg-muted/80 text-foreground border border-border/40 hover:bg-muted"
               }`}
             >
               {m.role === "assistant" ? (
@@ -166,10 +177,10 @@ export default function VibeChat({ onComplete }: Props) {
         ))}
         {loading && (
           <div className="flex justify-start animate-fade-in">
-            <div className="flex items-center gap-1.5 rounded-2xl bg-muted px-4 py-3">
-              <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: "0ms" }} />
-              <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: "150ms" }} />
-              <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground" style={{ animationDelay: "300ms" }} />
+            <div className="flex items-center gap-2 rounded-2xl bg-muted/80 px-5 py-4 border border-border/40">
+              <span className="h-2.5 w-2.5 animate-bounce rounded-full bg-primary/60" style={{ animationDelay: "0ms" }} />
+              <span className="h-2.5 w-2.5 animate-bounce rounded-full bg-primary/60" style={{ animationDelay: "150ms" }} />
+              <span className="h-2.5 w-2.5 animate-bounce rounded-full bg-primary/60" style={{ animationDelay: "300ms" }} />
             </div>
           </div>
         )}
@@ -177,12 +188,13 @@ export default function VibeChat({ onComplete }: Props) {
 
       {/* Quick starters */}
       {messages.length <= 2 && !loading && !done && (
-        <div className="flex flex-wrap gap-1.5 border-t border-border/50 px-4 py-2">
-          {STARTERS.map((s) => (
+        <div className="flex flex-wrap gap-2 border-t border-border/40 px-5 py-3 bg-muted/20">
+          {STARTERS.map((s, i) => (
             <button
               key={s}
               onClick={() => send(s)}
-              className="rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground transition-smooth hover:border-primary/50 hover:text-foreground"
+              className="rounded-xl border border-border/60 bg-background px-4 py-2 text-xs text-muted-foreground transition-all duration-300 hover:border-primary/50 hover:text-foreground hover:bg-primary/5 hover:-translate-y-0.5 hover:shadow-sm active:scale-95"
+              style={{ animationDelay: `${i * 50}ms` }}
             >
               {s}
             </button>
@@ -193,17 +205,22 @@ export default function VibeChat({ onComplete }: Props) {
       {/* Input */}
       <form
         onSubmit={(e) => { e.preventDefault(); send(input); }}
-        className="flex gap-2 border-t border-border/50 bg-background/40 p-3"
+        className="flex gap-3 border-t border-border/40 bg-gradient-to-r from-background/60 to-muted/30 p-4 backdrop-blur-sm"
       >
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={done ? "Loading your spots..." : "Type your vibe..."}
           disabled={loading || done}
-          className="flex-1"
+          className="flex-1 h-12 rounded-xl border-border/60 bg-background/80 px-4 text-sm transition-all duration-300 focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
         />
-        <Button type="submit" size="icon" disabled={loading || done || !input.trim()} className="bg-gradient-hero shadow-glow">
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+        <Button 
+          type="submit" 
+          size="icon" 
+          disabled={loading || done || !input.trim()} 
+          className="h-12 w-12 rounded-xl bg-gradient-hero shadow-glow transition-all duration-300 hover:shadow-elevated hover:scale-105 active:scale-95 disabled:opacity-50"
+        >
+          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-0.5" />}
         </Button>
       </form>
     </Card>

@@ -35,11 +35,11 @@ export default function Navbar() {
   const closeMobile = () => setMobileOpen(false);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur-lg">
-      <div className="container flex h-16 items-center justify-between px-4">
-        <Link to="/" className="flex items-baseline gap-1.5 font-display text-2xl font-bold leading-none">
-          <span className="text-secondary text-xl" aria-hidden>〰</span>
-          <span className="text-primary">Karavali</span>
+    <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl transition-all duration-300">
+      <div className="container flex h-16 items-center justify-between px-4 lg:h-18">
+        <Link to="/" className="group flex items-baseline gap-2 font-display text-2xl font-bold leading-none transition-transform duration-300 hover:scale-[1.02]">
+          <span className="text-secondary text-xl transition-transform duration-500 group-hover:rotate-[360deg]" aria-hidden>〰</span>
+          <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">Karavali</span>
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1">
@@ -47,7 +47,7 @@ export default function Navbar() {
             <Link
               key={l.to}
               to={l.to}
-              className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 transition-smooth hover:text-primary hover:bg-secondary/30"
+              className="relative rounded-xl px-4 py-2.5 text-sm font-medium text-foreground/70 transition-all duration-300 hover:text-primary hover:bg-secondary/20 after:absolute after:bottom-1 after:left-1/2 after:h-0.5 after:w-0 after:bg-primary after:rounded-full after:transition-all after:duration-300 after:-translate-x-1/2 hover:after:w-1/2"
             >
               {l.label}
             </Link>
@@ -56,15 +56,20 @@ export default function Navbar() {
 
         <div className="flex items-center gap-1.5">
           {user && (
-            <span className="hidden md:inline-flex items-center gap-1 rounded-full bg-success/15 px-2.5 py-1 text-[11px] font-semibold text-success">
-              <CheckCircle2 className="h-3 w-3" /> Sync enabled
+            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1.5 text-[11px] font-semibold text-success border border-success/20 transition-all duration-300 hover:bg-success/15">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-success"></span>
+              </span>
+              Synced
             </span>
           )}
 
           <NotificationsBell />
 
-          <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle theme">
-            {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+          <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle theme" className="group relative overflow-hidden">
+            <Moon className={`h-5 w-5 absolute transition-all duration-500 ${theme === "light" ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-0 opacity-0"}`} />
+            <Sun className={`h-5 w-5 transition-all duration-500 ${theme === "dark" ? "rotate-0 scale-100 opacity-100" : "rotate-90 scale-0 opacity-0"}`} />
           </Button>
 
           {user ? (
@@ -72,7 +77,7 @@ export default function Navbar() {
               <DropdownMenuTrigger asChild>
                 <button
                   aria-label="Account"
-                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-secondary bg-card text-xl transition-smooth hover:border-primary"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-secondary/60 bg-card text-xl shadow-sm transition-all duration-300 hover:border-primary hover:shadow-md hover:scale-105 active:scale-95"
                 >
                   {emoji}
                 </button>

@@ -16,10 +16,9 @@ import LoginModal from "./LoginModal";
 import NotificationsBell from "./NotificationsBell";
 
 const NAV_LINKS = [
+  { to: "/explore", label: "Explore" },
   { to: "/events", label: "Events" },
   { to: "/trip-planner", label: "Planner" },
-  { to: "/bucket-list", label: "Bucket List" },
-  { to: "/fresher-guide", label: "Fresher Guide" },
   { to: "/profile", label: "My Profile" },
 ];
 

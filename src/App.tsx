@@ -26,6 +26,7 @@ import ComingSoon from "./pages/ComingSoon.tsx";
 import Experiences from "./pages/Experiences.tsx";
 import ExperienceDetail from "./pages/ExperienceDetail.tsx";
 import ExperienceGroup from "./pages/ExperienceGroup.tsx";
+import Explore from "./pages/Explore.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,7 @@ const App = () => (
               <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/explore" element={<Explore />} />
               <Route path="/recommendations" element={<Recommendations />} />
               <Route path="/destination/:id" element={<DestinationDetail />} />
               <Route path="/saved" element={<Saved />} />

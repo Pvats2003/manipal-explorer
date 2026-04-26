@@ -1,6 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
 import { getCompleted as getLocalBucket, setCompleted as setLocalBucket } from "@/lib/bucketList";
-import { loadTrips as loadLocalTrips, saveTrips as saveLocalTrips } from "@/lib/tripTracker";
 
 const MIGRATED_KEY = "mhs_migrated_v1";
 
@@ -13,19 +12,6 @@ export async function migrateLocalToCloud(userId: string) {
   if (ids.length) {
     const rows = ids.map((item_id) => ({ user_id: userId, item_id }));
     await supabase.from("bucket_list_completions").upsert(rows, { onConflict: "user_id,item_id", ignoreDuplicates: true });
-  }
-
-  // Trip logs
-  const trips = loadLocalTrips();
-  if (trips.length) {
-    const rows = trips.map((t) => ({
-      user_id: userId,
-      destination_name: t.place,
-      date_visited: t.date,
-      spent: t.amount,
-      notes: t.notes ?? null,
-    }));
-    await supabase.from("trip_logs").insert(rows);
   }
 
   localStorage.setItem(MIGRATED_KEY, userId);

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Camera, CalendarHeart, CheckCircle2, GraduationCap, Heart, History, ListChecks, LogOut, Menu, Moon, Plus, Settings, Sparkles, Sun, User, Wallet, X } from "lucide-react";
+import { Camera, CalendarHeart, CheckCircle2, GraduationCap, Heart, History, ListChecks, LogOut, Menu, Moon, Plus, Settings, Sparkles, Sun, User, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,11 +17,10 @@ import NotificationsBell from "./NotificationsBell";
 
 const NAV_LINKS = [
   { to: "/recommendations", label: "Explore" },
-  { to: "/experiences", label: "Experiences" },
+  { to: "/events", label: "Events" },
   { to: "/trip-planner", label: "Planner" },
   { to: "/bucket-list", label: "Bucket List" },
   { to: "/fresher-guide", label: "Fresher Guide" },
-  { to: "/leaderboard", label: "Leaderboard" },
   { to: "/profile", label: "My Profile" },
 ];
 
@@ -91,7 +90,6 @@ export default function Navbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate("/saved")}><User className="mr-2 h-4 w-4" /> My profile</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/saved")}><Heart className="mr-2 h-4 w-4" /> My saved places</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/trip-tracker")}><Wallet className="mr-2 h-4 w-4" /> My trips</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/bucket-list")}><ListChecks className="mr-2 h-4 w-4" /> Bucket list</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/history")}><History className="mr-2 h-4 w-4" /> Search history</DropdownMenuItem>
                 <DropdownMenuSeparator />

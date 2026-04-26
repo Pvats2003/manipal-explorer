@@ -7,13 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { EVENT_CATEGORIES, isUpcoming, withinRange, type CommunityEvent, categoryMeta, downloadIcs } from "@/lib/events";
-import { CalendarHeart, Plus, Search, MapPin, Calendar, Trash2, ExternalLink } from "lucide-react";
+import { CalendarHeart, Plus, Search, MapPin, Calendar, Trash2, ExternalLink, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { fetchExperiences, type Experience } from "@/lib/experiences";
+import ExperienceCard from "@/components/experiences/ExperienceCard";
+import CreateExperienceDialog from "@/components/experiences/CreateExperienceDialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Range = "all" | "week" | "month";
 
@@ -29,6 +34,12 @@ export default function Events() {
   const [formOpen, setFormOpen] = useState(false);
   const [detail, setDetail] = useState<CommunityEvent | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Plan a trip (experiences) state
+  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [expCounts, setExpCounts] = useState<Record<string, number>>({});
+  const [expLoading, setExpLoading] = useState(true);
+  const [createTripOpen, setCreateTripOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -61,6 +72,27 @@ export default function Events() {
   };
 
   useEffect(() => { load(); }, [user?.id]);
+
+  const loadExperiences = async () => {
+    setExpLoading(true);
+    try {
+      const xs = await fetchExperiences();
+      setExperiences(xs);
+      if (xs.length) {
+        const { data } = await supabase
+          .from("experience_attendees")
+          .select("experience_id")
+          .in("experience_id", xs.map((x) => x.id));
+        const c: Record<string, number> = {};
+        (data || []).forEach((r: any) => { c[r.experience_id] = (c[r.experience_id] || 0) + 1; });
+        setExpCounts(c);
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Couldn't load trips");
+    } finally { setExpLoading(false); }
+  };
+
+  useEffect(() => { loadExperiences(); }, []);
 
   // open ?id=... in detail dialog
   useEffect(() => {
@@ -114,14 +146,23 @@ export default function Events() {
           <div className="space-y-2">
             <Badge variant="outline" className="gap-1"><CalendarHeart className="h-3 w-3" /> Live Events Board</Badge>
             <h1 className="text-3xl font-extrabold md:text-4xl">What's happening in Manipal</h1>
-            <p className="text-muted-foreground">Fests, gigs, food pop-ups and beach parties — by students, for students.</p>
+            <p className="text-muted-foreground">Fests, gigs, food pop-ups, beach parties — and group trips, all in one place.</p>
           </div>
-          <Button onClick={() => user ? setFormOpen(true) : navigate("/auth")} className="bg-gradient-hero shadow-glow">
-            <Plus className="mr-1.5 h-4 w-4" /> Post event
-          </Button>
         </div>
 
-        <div className="mb-4 space-y-3">
+        <Tabs defaultValue="events" className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="events"><CalendarHeart className="mr-1.5 h-4 w-4" /> Events</TabsTrigger>
+            <TabsTrigger value="trips"><Sparkles className="mr-1.5 h-4 w-4" /> Plan a trip</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="events" className="mt-6">
+            <div className="mb-4 flex justify-end">
+              <Button onClick={() => user ? setFormOpen(true) : navigate("/auth")} className="bg-gradient-hero shadow-glow">
+                <Plus className="mr-1.5 h-4 w-4" /> Post event
+              </Button>
+            </div>
+            <div className="mb-4 space-y-3">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search events…" className="pl-9" />
@@ -145,7 +186,7 @@ export default function Events() {
               </Button>
             ))}
           </div>
-        </div>
+            </div>
 
         {loading ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -178,9 +219,53 @@ export default function Events() {
             ))}
           </div>
         )}
+          </TabsContent>
+
+          <TabsContent value="trips" className="mt-6">
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 className="font-display text-2xl font-bold text-primary">
+                  <Sparkles className="mr-1 inline h-5 w-5 text-secondary" />
+                  Plan a trip
+                </h2>
+                <p className="text-sm text-muted-foreground">Group trips & community plans by Karavali explorers.</p>
+              </div>
+              <Button onClick={() => user ? setCreateTripOpen(true) : navigate("/auth")} className="bg-gradient-hero shadow-glow">
+                <Plus className="mr-1.5 h-4 w-4" /> New plan
+              </Button>
+            </div>
+
+            {expLoading ? (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {[0, 1, 2].map((i) => <Skeleton key={i} className="h-64 w-full" />)}
+              </div>
+            ) : experiences.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-10 text-center">
+                <div className="text-5xl">🗺️</div>
+                <h2 className="mt-3 text-lg font-bold">No trips planned yet</h2>
+                <p className="mt-1 text-sm text-muted-foreground">Be the first to plan something for the community.</p>
+                <Button className="mt-4 bg-gradient-hero shadow-glow" onClick={() => user ? setCreateTripOpen(true) : navigate("/auth")}>
+                  <Plus className="mr-1.5 h-4 w-4" /> Create the first one
+                </Button>
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {experiences.map((x) => (
+                  <ExperienceCard
+                    key={x.id}
+                    experience={x}
+                    attendeeCount={expCounts[x.id] || 0}
+                    onClick={() => navigate(`/experiences/${x.id}`)}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
 
       <EventForm open={formOpen} onOpenChange={setFormOpen} onCreated={load} />
+      <CreateExperienceDialog open={createTripOpen} onOpenChange={setCreateTripOpen} onCreated={loadExperiences} />
 
       <Dialog open={!!detail} onOpenChange={(v) => !v && setDetail(null)}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">

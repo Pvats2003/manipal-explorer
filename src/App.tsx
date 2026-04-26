@@ -21,7 +21,6 @@ import FresherGuide from "./pages/FresherGuide.tsx";
 import PhotoWall from "./pages/PhotoWall.tsx";
 import Events from "./pages/Events.tsx";
 import SubmitPlace from "./pages/SubmitPlace.tsx";
-import Leaderboard from "./pages/Leaderboard.tsx";
 import Profile from "./pages/Profile.tsx";
 import ComingSoon from "./pages/ComingSoon.tsx";
 import Experiences from "./pages/Experiences.tsx";
@@ -65,7 +64,6 @@ const App = () => (
               <Route path="/photo-wall" element={<PhotoWall />} />
               <Route path="/events" element={<Events />} />
               <Route path="/submit" element={<SubmitPlace />} />
-              <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/coming-soon" element={<ComingSoon />} />
               <Route path="/experiences" element={<Experiences />} />

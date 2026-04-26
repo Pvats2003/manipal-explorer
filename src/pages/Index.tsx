@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Destination, UserPreferences } from "@/lib/types";
-import { ArrowRight, Sparkles, Heart, ListChecks, Wallet, Camera, GraduationCap, CalendarHeart } from "lucide-react";
+import { ArrowRight, Sparkles, Heart, ListChecks, Camera, GraduationCap, CalendarHeart } from "lucide-react";
 import { TrendingThisWeek, RecentlyCheckedIn, RisingNewThisMonth } from "@/components/HomeCheckinRows";
 
 const Index = () => {
@@ -154,15 +154,15 @@ const Index = () => {
               <ListChecks className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
             </button>
             <button
-              onClick={() => navigate("/trip-tracker")}
+              onClick={() => navigate("/events")}
               className="group flex items-center gap-3 rounded-2xl border border-border bg-gradient-card p-4 text-left shadow-card hover-lift"
             >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary/10 text-2xl">💸</div>
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary/10 text-2xl">🎉</div>
               <div className="flex-1 min-w-0">
-                <div className="font-bold">Trip Tracker</div>
-                <div className="truncate text-xs text-muted-foreground">Log spending</div>
+                <div className="font-bold">Events</div>
+                <div className="truncate text-xs text-muted-foreground">Plan a trip together</div>
               </div>
-              <Wallet className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
+              <CalendarHeart className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
             </button>
             <button
               onClick={() => navigate("/photo-wall")}

@@ -11,7 +11,7 @@ type DestWithMeta = Destination & { created_at?: string };
 
 function ScrollRow({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2">
+    <div className="flex snap-x snap-mandatory gap-5 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-3 pt-1">
       {children}
     </div>
   );
@@ -19,24 +19,24 @@ function ScrollRow({ children }: { children: React.ReactNode }) {
 
 function PlaceMini({ dest, badge, footer, isNew }: { dest: DestWithMeta; badge?: React.ReactNode; footer: React.ReactNode; isNew?: boolean }) {
   return (
-    <Link to={`/destination/${dest.id}`} className="group block w-64 shrink-0 snap-start">
-      <Card className="h-full overflow-hidden border-border/50 bg-gradient-card shadow-card transition-smooth hover:shadow-glow hover:-translate-y-1">
-        <div className="relative h-32 bg-gradient-hero overflow-hidden">
+    <Link to={`/destination/${dest.id}`} className="group block w-72 shrink-0 snap-start">
+      <Card className="h-full overflow-hidden border-border/40 bg-gradient-card shadow-card transition-all duration-500 ease-premium hover:shadow-glow hover:-translate-y-2 hover:border-primary/30">
+        <div className="relative h-36 bg-gradient-hero overflow-hidden">
           {dest.image_url && (
-            <img src={dest.image_url} alt={dest.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+            <img src={dest.image_url} alt={dest.name} loading="lazy" className="h-full w-full object-cover transition-all duration-700 ease-out group-hover:scale-110" />
           )}
-          <div className="absolute inset-0 bg-gradient-sunset" />
-          {badge && <div className="absolute left-3 top-3">{badge}</div>}
+          <div className="absolute inset-0 bg-gradient-sunset transition-opacity duration-500 group-hover:opacity-80" />
+          {badge && <div className="absolute left-3 top-3 transition-transform duration-300 group-hover:scale-105">{badge}</div>}
           {isNew && (
-            <div className="absolute right-3 top-3 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-secondary-foreground shadow-md">
+            <div className="absolute right-3 top-3 rounded-lg bg-secondary px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-secondary-foreground shadow-lg animate-pulse-soft">
               NEW
             </div>
           )}
-          <div className="absolute bottom-2 left-3 right-3 text-white">
-            <h3 className="line-clamp-1 text-base font-bold drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">{dest.name}</h3>
+          <div className="absolute bottom-3 left-4 right-4 text-white transition-transform duration-500 group-hover:translate-y-[-2px]">
+            <h3 className="line-clamp-1 font-display text-lg font-bold drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">{dest.name}</h3>
           </div>
         </div>
-        <div className="space-y-1 p-3">
+        <div className="space-y-2 p-4">
           {footer}
         </div>
       </Card>
@@ -69,17 +69,20 @@ export function TrendingThisWeek() {
   const updatedMins = Math.max(0, Math.floor((Date.now() - trending.computed_at) / 60000));
 
   return (
-    <section className="container px-4 py-10">
-      <div className="mx-auto max-w-6xl space-y-3">
-        <div className="flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <h2 className="flex items-center gap-2 text-2xl font-bold md:text-3xl">
-              <Flame className="h-6 w-6 text-accent" /> Trending this week
+    <section className="container px-4 py-14">
+      <div className="mx-auto max-w-6xl space-y-5">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="space-y-1">
+            <h2 className="flex items-center gap-3 font-display text-2xl font-bold md:text-3xl">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15 transition-transform duration-300 hover:scale-110">
+                <Flame className="h-5 w-5 text-accent" />
+              </span>
+              Trending this week
             </h2>
-            <p className="text-sm text-muted-foreground">Where MIT students are checking in right now.</p>
+            <p className="text-sm text-muted-foreground pl-[52px]">Where MIT students are checking in right now.</p>
           </div>
-          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Clock4 className="h-3 w-3" /> Updated {updatedMins === 0 ? "just now" : `${updatedMins} min${updatedMins === 1 ? "" : "s"} ago`}
+          <span className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-full">
+            <Clock4 className="h-3.5 w-3.5" /> Updated {updatedMins === 0 ? "just now" : `${updatedMins} min${updatedMins === 1 ? "" : "s"} ago`}
           </span>
         </div>
         <ScrollRow>
@@ -92,8 +95,8 @@ export function TrendingThisWeek() {
                 dest={dest}
                 isNew={isNewPlace(dest.created_at)}
                 badge={
-                  <div className="flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-xs font-extrabold text-accent-foreground shadow-md">
-                    <Flame className="h-3 w-3" /> #{idx + 1}
+                  <div className="flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-extrabold text-accent-foreground shadow-lg">
+                    <Flame className="h-3.5 w-3.5" /> #{idx + 1}
                   </div>
                 }
                 footer={
@@ -134,13 +137,16 @@ export function RecentlyCheckedIn() {
   if (items.length === 0) return null;
 
   return (
-    <section className="container px-4 py-10">
-      <div className="mx-auto max-w-6xl space-y-3">
-        <div>
-          <h2 className="flex items-center gap-2 text-2xl font-bold md:text-3xl">
-            <Footprints className="h-6 w-6 text-primary" /> Recently checked in
+    <section className="container px-4 py-14">
+      <div className="mx-auto max-w-6xl space-y-5">
+        <div className="space-y-1">
+          <h2 className="flex items-center gap-3 font-display text-2xl font-bold md:text-3xl">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 transition-transform duration-300 hover:scale-110">
+              <Footprints className="h-5 w-5 text-primary" />
+            </span>
+            Recently checked in
           </h2>
-          <p className="text-sm text-muted-foreground">Live community pulse from across campus.</p>
+          <p className="text-sm text-muted-foreground pl-[52px]">Live community pulse from across campus.</p>
         </div>
         <ScrollRow>
           {items.map(({ dest, today_count, last_at }) => (
@@ -188,13 +194,16 @@ export function RisingNewThisMonth() {
   if (items.length === 0) return null;
 
   return (
-    <section className="container px-4 pb-12">
-      <div className="mx-auto max-w-6xl space-y-3">
-        <div>
-          <h2 className="flex items-center gap-2 text-2xl font-bold md:text-3xl">
-            <Sparkles className="h-6 w-6 text-secondary" /> Rising — new this month
+    <section className="container px-4 pb-16">
+      <div className="mx-auto max-w-6xl space-y-5">
+        <div className="space-y-1">
+          <h2 className="flex items-center gap-3 font-display text-2xl font-bold md:text-3xl">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/15 transition-transform duration-300 hover:scale-110">
+              <Sparkles className="h-5 w-5 text-secondary" />
+            </span>
+            Rising &mdash; new this month
           </h2>
-          <p className="text-sm text-muted-foreground">Just added to Karavali.</p>
+          <p className="text-sm text-muted-foreground pl-[52px]">Just added to Karavali.</p>
         </div>
         <ScrollRow>
           {items.map(({ dest, count }) => (

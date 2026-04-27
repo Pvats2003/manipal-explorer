@@ -70,17 +70,17 @@ export async function logExplorerEvent(opts: {
   /** Optional context for badge evaluation (e.g. place category). */
   context?: { placeCategory?: string; checkinHourLocal?: number };
 }) {
-  const points = opts.points ?? EVENT_POINTS[opts.type];
-  const { error } = await supabase.from("explorer_events").insert({
-    user_id: opts.userId,
-    event_type: opts.type,
-    points_awarded: points,
-    reference_id: opts.referenceId ?? null,
+  // Points are now enforced server-side via the log_explorer_event RPC.
+  // The opts.points override is ignored to prevent client-side inflation.
+  const { data, error } = await supabase.rpc("log_explorer_event", {
+    _event_type: opts.type,
+    _reference_id: opts.referenceId ?? null,
   });
   if (error) {
     console.error("logExplorerEvent failed", error);
     return;
   }
+  const points = (typeof data === "number" ? data : EVENT_POINTS[opts.type]);
   emitPointsAwarded({ points, type: opts.type });
   // Fire-and-forget badge evaluation
   evaluateBadges(opts.userId, opts.type, opts.context).catch((e) =>
@@ -100,12 +100,14 @@ async function alreadyHasBadge(userId: string, badgeId: string): Promise<boolean
 
 async function awardBadge(userId: string, badgeId: string) {
   if (await alreadyHasBadge(userId, badgeId)) return;
-  const { error } = await supabase.from("user_badges").insert({ user_id: userId, badge_id: badgeId });
+  // Eligibility & insertion are enforced server-side; the RPC returns
+  // true only if a new badge was actually awarded.
+  const { data, error } = await supabase.rpc("claim_badge", { _badge_id: badgeId });
   if (error) {
-    if (error.code === "23505") return; // duplicate
     console.error("awardBadge failed", error);
     return;
   }
+  if (!data) return;
   const def = BADGES.find((b) => b.id === badgeId);
   if (def) {
     emitBadgeEarned(def);

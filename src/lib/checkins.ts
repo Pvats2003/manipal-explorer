@@ -37,9 +37,10 @@ export async function hasCheckedIn(placeId: string, userId: string | null): Prom
     return !!data;
   }
   const fp = getDeviceFingerprint();
-  const { data } = await supabase
-    .from("checkins").select("id")
-    .eq("place_id", placeId).is("user_id", null).eq("device_fingerprint", fp).maybeSingle();
+  const { data } = await supabase.rpc("has_anon_checkin", {
+    _place_id: placeId,
+    _fingerprint: fp,
+  });
   return !!data;
 }
 

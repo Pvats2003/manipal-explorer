@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Star, Clock } from "lucide-react";
+import { MapPin, Star, Clock, ShieldCheck } from "lucide-react";
 import type { Destination } from "@/lib/types";
 import { getOpenStatus } from "@/lib/openingHours";
 import { isNewPlace } from "@/lib/checkins";
@@ -44,6 +44,9 @@ export default function DestinationCard({ destination, rank, className, checkinC
           <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-background/90 px-3 py-1 text-sm font-semibold backdrop-blur">
             <Star className="h-3.5 w-3.5 fill-primary text-primary" />
             {destination.rating}/10
+          </div>
+          <div className="absolute bottom-14 left-4 inline-flex items-center gap-1 rounded-full bg-emerald-500/95 px-2 py-0.5 text-[10px] font-bold text-white shadow">
+            <ShieldCheck className="h-2.5 w-2.5" /> Community-verified
           </div>
           <div className="absolute bottom-3 left-4 right-4 text-white">
             <h3 className="text-2xl font-bold drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">{destination.name}</h3>

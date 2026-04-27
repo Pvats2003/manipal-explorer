@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Destination } from "@/lib/types";
-import { ArrowLeft, Heart, MapPin, Star, Bookmark, ExternalLink, Clock } from "lucide-react";
+import { ArrowLeft, Heart, MapPin, Star, Bookmark, ExternalLink, Clock, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import CheckInButton from "@/components/CheckInButton";
 import PlanningHere from "@/components/experiences/PlanningHere";
@@ -69,9 +69,13 @@ export default function DestinationDetail() {
 
   if (!dest) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-24 md:pb-0">
         <Navbar />
-        <div className="container px-4 py-20 text-center text-muted-foreground">Loading...</div>
+        <div className="container max-w-5xl space-y-4 px-4 py-6">
+          <div className="h-72 animate-pulse rounded-2xl bg-muted md:h-[420px]" />
+          <div className="h-8 w-2/3 animate-pulse rounded bg-muted" />
+          <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
+        </div>
       </div>
     );
   }
@@ -85,38 +89,61 @@ export default function DestinationDetail() {
     : `https://maps.google.com/maps?q=${encodeURIComponent(dest.name + " Karnataka")}&z=10&output=embed`;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-28 md:pb-0">
       <Navbar />
-      <div className="container max-w-5xl space-y-6 px-4 py-6">
-        <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back
-        </Button>
 
-        <div className="relative h-64 overflow-hidden rounded-2xl bg-gradient-hero md:h-80">
-          {dest.image_url && <img src={dest.image_url} alt={dest.name} className="h-full w-full object-cover" />}
-          <div className="absolute inset-0 bg-gradient-sunset" />
-          <div className="absolute bottom-6 left-6 right-6 text-white">
-            <Badge className="mb-2 bg-background/90 capitalize text-foreground">{dest.category}</Badge>
-            <h1 className="text-4xl font-extrabold drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] md:text-5xl">{dest.name}</h1>
-            <div className="mt-2 flex flex-wrap items-center gap-4 text-sm">
-              <span className="flex items-center gap-1"><Star className="h-4 w-4 fill-primary-glow text-primary-glow" /> {dest.rating}/10</span>
-              <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {dest.distance_km}km from Manipal</span>
-              <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {dest.duration_type === "day" ? "Day trip" : "Multi-day"}</span>
-              {dest.best_time && <span>📅 Best: {dest.best_time}</span>}
-            </div>
+      {/* Immersive hero — ~40% of viewport on mobile, fixed-tall on desktop */}
+      <div className="relative h-[44vh] min-h-[280px] w-full overflow-hidden bg-gradient-hero md:h-[420px]">
+        {dest.image_url && (
+          <img src={dest.image_url} alt={dest.name} className="h-full w-full object-cover" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/20" />
+        <button
+          onClick={() => navigate(-1)}
+          aria-label="Back"
+          className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-background/90 text-foreground shadow backdrop-blur transition-smooth hover:scale-105"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+        <button
+          onClick={async () => {
+            const url = window.location.href;
+            if (navigator.share) { try { await navigator.share({ title: dest.name, url }); } catch {} }
+            else { await navigator.clipboard.writeText(url); toast.success("Link copied"); }
+          }}
+          aria-label="Share"
+          className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-background/90 text-foreground shadow backdrop-blur transition-smooth hover:scale-105"
+        >
+          <Share2 className="h-5 w-5" />
+        </button>
+      </div>
+
+      <div className="container max-w-5xl space-y-6 px-4 pb-6">
+        {/* Floating title card overlapping the hero */}
+        <div className="-mt-16 rounded-2xl border border-border/50 bg-card p-5 shadow-elevated md:p-6">
+          <Badge className="mb-2 bg-secondary/40 capitalize text-secondary-foreground">{dest.category}</Badge>
+          <h1 className="font-display text-3xl font-bold leading-tight md:text-4xl">{dest.name}</h1>
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1 font-semibold text-foreground">
+              <Star className="h-4 w-4 fill-primary text-primary" /> {dest.rating}/10
+            </span>
+            <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {dest.distance_km} km</span>
+            <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {dest.duration_type === "day" ? "Day trip" : "Multi-day"}</span>
+            {dest.best_time && <span className="hidden sm:inline">📅 Best: {dest.best_time}</span>}
           </div>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={toggleSave} variant={saved ? "default" : "outline"}>
-            <Bookmark className={`mr-2 h-4 w-4 ${saved ? "fill-current" : ""}`} /> {saved ? "Saved" : "Save trip"}
-          </Button>
-          <Button onClick={toggleLike} variant={liked ? "default" : "outline"}>
-            <Heart className={`mr-2 h-4 w-4 ${liked ? "fill-current" : ""}`} /> {liked ? "Liked" : "Like"}
-          </Button>
-          <a href={mapsUrl} target="_blank" rel="noopener noreferrer">
-            <Button variant="outline"><ExternalLink className="mr-2 h-4 w-4" /> Open in Maps</Button>
-          </a>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary">
+              ₹{totalCost} <span className="text-[11px] font-medium text-primary/70">total est.</span>
+            </span>
+            <Button onClick={toggleLike} variant={liked ? "default" : "outline"} size="sm" className="ml-auto">
+              <Heart className={`mr-1.5 h-4 w-4 ${liked ? "fill-current" : ""}`} /> {liked ? "Liked" : "Like"}
+            </Button>
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="sm">
+                <ExternalLink className="mr-1.5 h-4 w-4" /> Maps
+              </Button>
+            </a>
+          </div>
         </div>
 
         <Card className="bg-gradient-card p-5 shadow-card">
@@ -182,6 +209,32 @@ export default function DestinationDetail() {
               </div>
             </Card>
           </div>
+        </div>
+      </div>
+
+      {/* Sticky bottom CTA bar (mobile-first) */}
+      <div
+        className="fixed bottom-[64px] left-0 right-0 z-30 border-t border-border bg-background/95 px-4 py-3 backdrop-blur md:bottom-0"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
+      >
+        <div className="container max-w-5xl flex items-center gap-2 px-0">
+          <div className="hidden flex-1 sm:block">
+            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Estimated</div>
+            <div className="font-display text-lg font-bold text-primary">₹{totalCost}<span className="text-xs font-medium text-muted-foreground"> /person</span></div>
+          </div>
+          <Button
+            onClick={toggleSave}
+            variant={saved ? "default" : "outline"}
+            className="flex-1 sm:flex-none"
+            size="lg"
+          >
+            <Bookmark className={`mr-2 h-4 w-4 ${saved ? "fill-current" : ""}`} /> {saved ? "Saved" : "Save"}
+          </Button>
+          <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="flex-1 sm:flex-none">
+            <Button className="w-full bg-gradient-hero text-primary-foreground hover:opacity-95" size="lg">
+              <MapPin className="mr-2 h-4 w-4" /> Get directions
+            </Button>
+          </a>
         </div>
       </div>
     </div>

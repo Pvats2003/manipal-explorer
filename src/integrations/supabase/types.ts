@@ -905,6 +905,10 @@ export type Database = {
     }
     Functions: {
       claim_badge: { Args: { _badge_id: string }; Returns: boolean }
+      has_anon_checkin: {
+        Args: { _fingerprint: string; _place_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

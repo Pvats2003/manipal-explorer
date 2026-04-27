@@ -372,6 +372,21 @@ export type Database = {
         }
         Relationships: []
       }
+      explorer_event_points: {
+        Row: {
+          event_type: string
+          points: number
+        }
+        Insert: {
+          event_type: string
+          points: number
+        }
+        Update: {
+          event_type?: string
+          points?: number
+        }
+        Relationships: []
+      }
       explorer_events: {
         Row: {
           created_at: string
@@ -889,6 +904,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_badge: { Args: { _badge_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -899,6 +915,10 @@ export type Database = {
       is_group_member: {
         Args: { _group_id: string; _user_id: string }
         Returns: boolean
+      }
+      log_explorer_event: {
+        Args: { _event_type: string; _reference_id?: string }
+        Returns: number
       }
     }
     Enums: {

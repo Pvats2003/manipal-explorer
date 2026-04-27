@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import SmartFeed from "@/components/feed/SmartFeed";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { Sparkles, MapPin, Plus, ShieldCheck, Compass } from "lucide-react";
+import { MapPin, Plus, ShieldCheck, Compass, Bookmark } from "lucide-react";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -48,10 +48,10 @@ export default function Index() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => navigate("/trip-planner")}
+                onClick={() => navigate("/trips")}
                 className="border-secondary/50 bg-transparent text-primary-foreground hover:bg-white/10 hover:text-primary-foreground rounded-full"
               >
-                <Sparkles className="mr-1.5 h-4 w-4" /> Plan a trip
+                <Bookmark className="mr-1.5 h-4 w-4" /> My trips
               </Button>
               {!user && (
                 <Button

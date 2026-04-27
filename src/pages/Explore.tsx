@@ -1,27 +1,28 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import DestinationCard from "@/components/DestinationCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import type { Destination } from "@/lib/types";
-import { getCheckinCountsBulk } from "@/lib/checkins";
-import { Search, MapPin, SlidersHorizontal } from "lucide-react";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+import { getCheckinCountsBulk, isNewPlace } from "@/lib/checkins";
+import { getOpenStatus } from "@/lib/openingHours";
+import { Search, Plus, Wallet, Sparkles, Clock, X, Flame, MapPin, Gem } from "lucide-react";
 
-type SortKey = "rating" | "distance" | "newest" | "popular";
+type Budget = "any" | "free" | "low" | "mid";
+type Time = "any" | "open" | "morning" | "evening";
+type Mood = "any" | string;
 
 export default function Explore() {
+  const navigate = useNavigate();
   const [all, setAll] = useState<Destination[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
-  const [activeCat, setActiveCat] = useState<string>("all");
-  const [activeMood, setActiveMood] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<SortKey>("rating");
+  const [budget, setBudget] = useState<Budget>("any");
+  const [mood, setMood] = useState<Mood>("any");
+  const [time, setTime] = useState<Time>("any");
   const [counts, setCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
@@ -33,174 +34,257 @@ export default function Explore() {
       const list = (data as Destination[]) || [];
       setAll(list);
       setLoading(false);
-      if (list.length) {
-        getCheckinCountsBulk(list.map((d) => d.id)).then(setCounts);
-      }
+      if (list.length) getCheckinCountsBulk(list.map((d) => d.id)).then(setCounts);
     })();
   }, []);
-
-  const categories = useMemo(() => {
-    const set = new Set<string>();
-    all.forEach((d) => d.category && set.add(d.category));
-    return Array.from(set).sort();
-  }, [all]);
 
   const moods = useMemo(() => {
     const set = new Set<string>();
     all.forEach((d) => (d.moods || []).forEach((m) => set.add(m)));
-    return Array.from(set).sort();
+    return Array.from(set).sort().slice(0, 8);
   }, [all]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    let list = all.filter((d) => {
-      if (activeCat !== "all" && d.category !== activeCat) return false;
-      if (activeMood !== "all" && !(d.moods || []).includes(activeMood)) return false;
+    return all.filter((d) => {
       if (q) {
         const hay = `${d.name} ${d.description} ${d.category} ${(d.activities || []).join(" ")} ${(d.moods || []).join(" ")}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
+      const cost = (d.entry_fee || 0) + (d.food_cost || 0) + (d.transport_cost || 0);
+      if (budget === "free" && cost > 0) return false;
+      if (budget === "low" && cost > 200) return false;
+      if (budget === "mid" && (cost <= 200 || cost > 600)) return false;
+      if (mood !== "any" && !(d.moods || []).includes(mood)) return false;
+      if (time === "open") {
+        const s = getOpenStatus(d.opening_hours);
+        if (!s || (s.state !== "open" && s.state !== "closing-soon")) return false;
+      }
       return true;
     });
-    list = [...list].sort((a, b) => {
-      if (sortBy === "rating") return (b.rating || 0) - (a.rating || 0);
-      if (sortBy === "distance") return (a.distance_km || 0) - (b.distance_km || 0);
-      if (sortBy === "newest") return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
-      if (sortBy === "popular") return (counts[b.id] || 0) - (counts[a.id] || 0);
-      return 0;
-    });
-    return list;
-  }, [all, query, activeCat, activeMood, sortBy, counts]);
+  }, [all, query, budget, mood, time]);
+
+  const trending = useMemo(
+    () => [...filtered].sort((a, b) => (counts[b.id] || 0) - (counts[a.id] || 0)).slice(0, 6),
+    [filtered, counts],
+  );
+  const nearby = useMemo(
+    () => [...filtered].sort((a, b) => (a.distance_km || 0) - (b.distance_km || 0)).slice(0, 6),
+    [filtered],
+  );
+  const hidden = useMemo(
+    () => filtered.filter((d) => (counts[d.id] || 0) <= 2 && !isNewPlace(d.created_at)).slice(0, 6),
+    [filtered, counts],
+  );
+
+  const filtersActive = budget !== "any" || mood !== "any" || time !== "any" || !!query.trim();
+  const reset = () => { setQuery(""); setBudget("any"); setMood("any"); setTime("any"); };
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-28 md:pb-12">
       <Navbar />
-      <header className="border-b border-border/60 bg-gradient-card">
-        <div className="container px-4 py-8 md:py-10">
-          <div className="mx-auto max-w-6xl space-y-4">
-            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">
-              <MapPin className="h-3.5 w-3.5" /> Browse Karavali
-            </div>
-            <h1 className="font-display text-3xl font-bold md:text-5xl">
-              Every place. Real names. Real info.
-            </h1>
-            <p className="max-w-2xl text-sm text-muted-foreground md:text-base">
-              All {all.length} restaurants, cafes, beaches, hotels and spots verified for the Manipal–Udupi region. Search, filter, and dive in.
-            </p>
 
-            <div className="relative max-w-xl">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search places, cuisines, vibes…"
-                className="pl-9"
-              />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <section className="container px-4 py-6">
-        <div className="mx-auto max-w-6xl space-y-5">
-          {/* Category chips */}
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4">
-            <CatChip active={activeCat === "all"} onClick={() => setActiveCat("all")} label="All" count={all.length} />
-            {categories.map((c) => (
-              <CatChip
-                key={c}
-                active={activeCat === c}
-                onClick={() => setActiveCat(c)}
-                label={c}
-                count={all.filter((d) => d.category === c).length}
-              />
-            ))}
-          </div>
-
-          {/* Mood + sort row */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <SlidersHorizontal className="h-4 w-4" /> Vibe
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              <MoodChip active={activeMood === "all"} onClick={() => setActiveMood("all")} label="Any" />
-              {moods.map((m) => (
-                <MoodChip key={m} active={activeMood === m} onClick={() => setActiveMood(m)} label={m} />
-              ))}
-            </div>
-            <div className="ml-auto flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Sort</span>
-              <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortKey)}>
-                <SelectTrigger className="h-9 w-[160px]"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="rating">Top rated</SelectItem>
-                  <SelectItem value="popular">Most visited</SelectItem>
-                  <SelectItem value="distance">Closest first</SelectItem>
-                  <SelectItem value="newest">Newest</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Results */}
-          {loading ? (
-            <div className="py-20 text-center text-muted-foreground">Loading places…</div>
-          ) : filtered.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border bg-card/50 py-16 text-center">
-              <p className="text-lg font-semibold">No places match those filters</p>
-              <p className="mt-1 text-sm text-muted-foreground">Try clearing a filter or searching something else.</p>
-              <Button
-                variant="outline"
-                className="mt-4"
-                onClick={() => { setQuery(""); setActiveCat("all"); setActiveMood("all"); }}
+      {/* Sticky search header */}
+      <div className="sticky top-16 z-30 border-b border-border/60 bg-background/95 backdrop-blur">
+        <div className="container max-w-5xl space-y-3 px-4 py-3">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search cafes, beaches, viewpoints..."
+              className="h-12 rounded-full border-border bg-card pl-11 pr-10 text-sm shadow-card focus-visible:ring-primary/40"
+            />
+            {query && (
+              <button
+                onClick={() => setQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted"
+                aria-label="Clear"
               >
-                Reset filters
-              </Button>
-            </div>
-          ) : (
-            <>
-              <p className="text-sm text-muted-foreground">
-                Showing <span className="font-semibold text-foreground">{filtered.length}</span> place{filtered.length === 1 ? "" : "s"}
-              </p>
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {filtered.map((d) => (
-                  <DestinationCard key={d.id} destination={d} checkinCount={counts[d.id] || 0} />
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      </section>
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
 
-      <Footer />
+          {/* Filter chip rows */}
+          <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide">
+            <ChipGroup
+              icon={<Wallet className="h-3 w-3" />}
+              label="Budget"
+              value={budget}
+              options={[
+                { v: "any", l: "Any" },
+                { v: "free", l: "Free" },
+                { v: "low", l: "Under ₹200" },
+                { v: "mid", l: "₹200–600" },
+              ]}
+              onChange={(v) => setBudget(v as Budget)}
+            />
+            <ChipGroup
+              icon={<Sparkles className="h-3 w-3" />}
+              label="Mood"
+              value={mood}
+              options={[{ v: "any", l: "Any" }, ...moods.map((m) => ({ v: m, l: m }))]}
+              onChange={(v) => setMood(v)}
+            />
+            <ChipGroup
+              icon={<Clock className="h-3 w-3" />}
+              label="Time"
+              value={time}
+              options={[
+                { v: "any", l: "Anytime" },
+                { v: "open", l: "Open now" },
+              ]}
+              onChange={(v) => setTime(v as Time)}
+            />
+            {filtersActive && (
+              <button
+                onClick={reset}
+                className="shrink-0 rounded-full border border-dashed border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:border-primary/40 hover:text-primary"
+              >
+                Reset
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="container max-w-5xl px-4 py-6 space-y-10">
+        {loading ? (
+          <SectionSkeleton />
+        ) : filtered.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border bg-card/50 py-16 text-center">
+            <p className="font-display text-xl font-bold">No places match those filters</p>
+            <p className="mt-1 text-sm text-muted-foreground">Try clearing a filter or searching something else.</p>
+            <Button variant="outline" className="mt-4" onClick={reset}>Reset filters</Button>
+          </div>
+        ) : filtersActive ? (
+          // When filters are active, show flat results — easier to scan
+          <Section
+            title={`${filtered.length} match${filtered.length === 1 ? "" : "es"}`}
+            subtitle="Filtered for you"
+            icon={<Sparkles className="h-4 w-4" />}
+            items={filtered}
+            counts={counts}
+          />
+        ) : (
+          <>
+            <Section title="Trending now" subtitle="Most visited this week" icon={<Flame className="h-4 w-4 text-accent" />} items={trending} counts={counts} />
+            <Section title="Near you" subtitle="Closest to Manipal" icon={<MapPin className="h-4 w-4 text-primary" />} items={nearby} counts={counts} />
+            {hidden.length > 0 && (
+              <Section title="Hidden gems" subtitle="Quiet spots most students miss" icon={<Gem className="h-4 w-4 text-secondary-foreground" />} items={hidden} counts={counts} />
+            )}
+            <Section title="All places" subtitle={`Browse all ${filtered.length}`} icon={<Sparkles className="h-4 w-4" />} items={filtered} counts={counts} />
+          </>
+        )}
+      </div>
+
+      {/* Floating Add CTA */}
+      <button
+        onClick={() => navigate("/submit")}
+        aria-label="Add a place"
+        className="fixed bottom-20 right-5 z-30 flex h-14 items-center gap-2 rounded-full bg-gradient-hero px-5 text-sm font-bold text-primary-foreground shadow-glow transition-smooth hover:scale-105 active:scale-95 md:bottom-8"
+      >
+        <Plus className="h-5 w-5" strokeWidth={2.5} /> Add a place
+      </button>
     </div>
   );
 }
 
-function CatChip({ active, onClick, label, count }: { active: boolean; onClick: () => void; label: string; count: number }) {
+function Section({
+  title,
+  subtitle,
+  icon,
+  items,
+  counts,
+}: {
+  title: string;
+  subtitle: string;
+  icon: React.ReactNode;
+  items: Destination[];
+  counts: Record<string, number>;
+}) {
+  if (items.length === 0) return null;
   return (
-    <button
-      onClick={onClick}
-      className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold capitalize transition-smooth ${
-        active
-          ? "border-primary bg-primary text-primary-foreground shadow-card"
-          : "border-border bg-card text-foreground hover:border-primary/40"
-      }`}
-    >
-      {label} <span className={`ml-1 text-xs ${active ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{count}</span>
-    </button>
+    <section>
+      <div className="mb-4 flex items-end justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            {icon} {subtitle}
+          </div>
+          <h2 className="mt-1 font-display text-2xl font-bold">{title}</h2>
+        </div>
+      </div>
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((d) => (
+          <DestinationCard key={d.id} destination={d} checkinCount={counts[d.id] || 0} />
+        ))}
+      </div>
+    </section>
   );
 }
 
-function MoodChip({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
+function ChipGroup({
+  icon,
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  options: { v: string; l: string }[];
+  onChange: (v: string) => void;
+}) {
+  const active = value !== "any";
+  const current = options.find((o) => o.v === value);
   return (
-    <button
-      onClick={onClick}
-      className={`rounded-full px-3 py-1 text-xs font-semibold capitalize transition-smooth ${
-        active ? "bg-secondary text-secondary-foreground" : "bg-muted text-muted-foreground hover:bg-secondary/40"
-      }`}
-    >
-      {label}
-    </button>
+    <div className="relative shrink-0">
+      <details className="group">
+        <summary className={`flex cursor-pointer list-none items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-smooth ${
+          active
+            ? "border-primary bg-primary text-primary-foreground shadow-card"
+            : "border-border bg-card text-foreground hover:border-primary/40"
+        }`}>
+          {icon}
+          <span>{label}</span>
+          {active && current && <span className="opacity-90">· {current.l}</span>}
+        </summary>
+        <div className="absolute left-0 top-full z-40 mt-2 flex flex-col gap-1 rounded-xl border border-border bg-card p-2 shadow-elevated min-w-[160px]">
+          {options.map((o) => (
+            <button
+              key={o.v}
+              onClick={(e) => {
+                onChange(o.v);
+                (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open");
+              }}
+              className={`rounded-md px-3 py-1.5 text-left text-xs font-semibold capitalize transition-colors ${
+                value === o.v
+                  ? "bg-primary/10 text-primary"
+                  : "text-foreground hover:bg-muted"
+              }`}
+            >
+              {o.l}
+            </button>
+          ))}
+        </div>
+      </details>
+    </div>
+  );
+}
+
+function SectionSkeleton() {
+  return (
+    <div className="space-y-10">
+      {[0, 1].map((s) => (
+        <div key={s}>
+          <Skeleton className="mb-4 h-7 w-44" />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {[0, 1, 2].map((i) => <Skeleton key={i} className="h-72 rounded-xl" />)}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

@@ -27,6 +27,7 @@ import Experiences from "./pages/Experiences.tsx";
 import ExperienceDetail from "./pages/ExperienceDetail.tsx";
 import ExperienceGroup from "./pages/ExperienceGroup.tsx";
 import Explore from "./pages/Explore.tsx";
+import Vibe from "./pages/Vibe.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -55,6 +56,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/explore" element={<Explore />} />
+              <Route path="/vibe" element={<Vibe />} />
               <Route path="/recommendations" element={<Recommendations />} />
               <Route path="/destination/:id" element={<DestinationDetail />} />
               <Route path="/saved" element={<Saved />} />

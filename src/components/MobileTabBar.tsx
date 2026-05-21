@@ -1,11 +1,12 @@
 import { NavLink } from "react-router-dom";
-import { Home, Compass, Bookmark, User } from "lucide-react";
+import { Home, Compass, Bookmark, User, CalendarHeart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TABS = [
   { to: "/", label: "Home", Icon: Home, end: true },
   { to: "/explore", label: "Explore", Icon: Compass },
   { to: "/trips", label: "Trips", Icon: Bookmark },
+  { to: "/events", label: "Events", Icon: CalendarHeart },
   { to: "/profile", label: "Profile", Icon: User },
 ];
 

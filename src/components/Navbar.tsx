@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Camera, CalendarHeart, CheckCircle2, GraduationCap, Heart, History, ListChecks, LogOut, Menu, Moon, Plus, Settings, Sparkles, Sun, User, X } from "lucide-react";
+import { Camera, CalendarHeart, CheckCircle2, GraduationCap, Heart, History, ListChecks, LogOut, Moon, Plus, Settings, Sparkles, Sun, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,12 +27,9 @@ export default function Navbar() {
   const { theme, toggle } = useTheme();
   const navigate = useNavigate();
   const [loginOpen, setLoginOpen] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   const emoji = profile?.profile_emoji || "🌴";
   const displayName = profile?.display_name || user?.email?.split("@")[0] || "Explorer";
-
-  const closeMobile = () => setMobileOpen(false);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur-lg">
@@ -108,47 +105,8 @@ export default function Navbar() {
               Login
             </Button>
           )}
-
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Menu">
-            <Menu className="h-5 w-5" />
-          </Button>
         </div>
       </div>
-
-      {/* Mobile editorial overlay */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-primary text-primary-foreground page-fade-in lg:hidden">
-          <div className="flex h-16 items-center justify-between px-4">
-            <span className="font-display text-2xl font-bold">
-              <span className="text-secondary text-xl mr-1.5" aria-hidden>〰</span>Karavali
-            </span>
-            <button onClick={closeMobile} aria-label="Close menu" className="rounded-full p-2 hover:bg-white/10">
-              <X className="h-6 w-6" />
-            </button>
-          </div>
-          <nav className="flex-1 space-y-1 px-6 pt-8">
-            {NAV_LINKS.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                onClick={closeMobile}
-                className="block border-b border-white/10 py-4 font-display text-3xl font-semibold tracking-tight hover:text-secondary"
-              >
-                {l.label}
-              </Link>
-            ))}
-            {isAdmin && (
-              <Link to="/admin" onClick={closeMobile} className="block border-b border-white/10 py-4 font-display text-3xl font-semibold tracking-tight hover:text-secondary">
-                Admin
-              </Link>
-            )}
-          </nav>
-          <div className="px-6 pb-10 text-sm text-primary-foreground/70">
-            <p className="font-display text-lg italic text-secondary">Coastal Karnataka, student-discovered.</p>
-            <p className="mt-1">@karavali</p>
-          </div>
-        </div>
-      )}
 
       <LoginModal open={loginOpen} onOpenChange={setLoginOpen} />
     </header>

@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import SmartFeed from "@/components/feed/SmartFeed";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { MapPin, Plus, ShieldCheck, Compass, Bookmark } from "lucide-react";
+import { MapPin, Plus, ShieldCheck, Compass, Bookmark, Sparkles } from "lucide-react";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -38,6 +38,13 @@ export default function Index() {
               Real student-discovered spots. Live experiences. Trips you can join today.
             </p>
             <div className="flex flex-wrap items-center gap-2 pt-1">
+              <Button
+                size="sm"
+                onClick={() => navigate("/vibe")}
+                className="bg-gradient-hero text-primary-foreground hover:opacity-90 font-semibold rounded-full shadow-glow"
+              >
+                <Sparkles className="mr-1.5 h-4 w-4" /> Ask Vibe AI
+              </Button>
               <Button
                 size="sm"
                 onClick={() => navigate("/explore")}
